@@ -170,7 +170,7 @@ export default function Home() {
                 required
                 placeholder="3291234567"
               />
-              <span className={styles.hint}>Con prefisso internazionale, es. 393291234567</span>
+
             </div>
           </fieldset>
 
@@ -207,19 +207,6 @@ export default function Home() {
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>Luogo dell'evento <span className={styles.req}>*</span></label>
-              <input
-                className={styles.input}
-                type="text"
-                name="luogo"
-                value={form.luogo}
-                onChange={handleChange}
-                required
-                placeholder="Es. Villa Rosa, Barletta"
-              />
-            </div>
-
-            <div className={styles.field}>
               <label className={styles.label}>Soluzione scelta <span className={styles.req}>*</span></label>
               {soluzioniDisponibili.length > 0 ? (
                 <select
@@ -249,6 +236,19 @@ export default function Home() {
               {!form.tipoEvento && (
                 <span className={styles.hint}>Seleziona prima il tipo di evento</span>
               )}
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>Luogo dell'evento <span className={styles.req}>*</span></label>
+              <input
+                className={styles.input}
+                type="text"
+                name="luogo"
+                value={form.luogo}
+                onChange={handleChange}
+                required
+                placeholder="Es. Villa Rosa, Barletta"
+              />
             </div>
 
             <div className={styles.field}>
