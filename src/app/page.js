@@ -92,6 +92,9 @@ export default function Home() {
           <p className={styles.successMsg}>
             Richiesta inviata! Clicca qui sotto per contattarmi su WhatsApp: troverai già il messaggio con tutti i dettagli pronto da inviare.
           </p>
+          <p className={styles.successMsg} style={{fontSize:'0.9rem', marginTop:'8px'}}>
+            Per modificare o cancellare la prenotazione, contattami su WhatsApp.
+          </p>
           <a
             href={whatsappUrl}
             target="_blank"
