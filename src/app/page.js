@@ -33,15 +33,44 @@ const SOLUZIONI = {
   ],
 }
 
+const EXTRA = {
+  'Primo Compleanno': [
+    'Fotolibro aggiuntivo (€150)',
+    'Polaroid aggiuntive — fino a 100 stampe (€160)',
+    'Polaroid solo momento torta — fino a 20 stampe (€80)',
+    'Polaroid solo momento torta su cartoncino personalizzato — fino a 20 stampe (€120)',
+  ],
+  'Battesimo': [
+    'Fotolibro aggiuntivo (€180)',
+    'Polaroid aggiuntive — fino a 100 stampe (€150)',
+    'Polaroid solo momento torta — fino a 20 stampe (€80)',
+    'Polaroid solo momento torta su cartoncino personalizzato — fino a 20 stampe (€120)',
+  ],
+  '18° Compleanno': [
+    'Fotolibro aggiuntivo (€150)',
+    'Polaroid aggiuntive — fino a 100 stampe (€150)',
+    'Polaroid solo momento torta — fino a 20 stampe (€70)',
+  ],
+}
+
+// Soluzioni che prevedono sessione a casa
+const SOLUZIONI_CON_CASA = [
+  'Soluzione 2 — Sessione a casa (€200)',       // Primo Compleanno
+  'Soluzione 3 — Giornata completa (€350)',      // Battesimo
+]
+
 export default function Home() {
   const [form, setForm] = useState({
     nome: '',
     cognome: '',
     telefono: '',
     tipoEvento: '',
+    chiesa: '',
     dataEvento: '',
     luogo: '',
     soluzione: '',
+    extra: [],
+    indirizzo: '',
     note: '',
   })
   const [stato, setStato] = useState('idle') // idle | loading | success | error
@@ -53,7 +82,16 @@ export default function Home() {
     setForm(prev => ({
       ...prev,
       [name]: value,
-      ...(name === 'tipoEvento' ? { soluzione: '' } : {}),
+      ...(name === 'tipoEvento' ? { soluzione: '', chiesa: '', extra: [], indirizzo: '' } : {}),
+    }))
+  }
+
+  const handleExtra = (val) => {
+    setForm(prev => ({
+      ...prev,
+      extra: prev.extra.includes(val)
+        ? prev.extra.filter(x => x !== val)
+        : [...prev.extra, val],
     }))
   }
 
@@ -82,6 +120,8 @@ export default function Home() {
   }
 
   const soluzioniDisponibili = SOLUZIONI[form.tipoEvento] || []
+  const extraDisponibili = EXTRA[form.tipoEvento] || []
+  const mostraIndirizzo = SOLUZIONI_CON_CASA.includes(form.soluzione)
 
   if (stato === 'success') {
     return (
@@ -108,7 +148,7 @@ export default function Home() {
           </a>
           <button
             className={styles.btnSecondary}
-            onClick={() => { setStato('idle'); setForm({ nome:'',cognome:'',telefono:'',tipoEvento:'',dataEvento:'',luogo:'',soluzione:'',note:'' }) }}
+            onClick={() => { setStato('idle'); setForm({ nome:'',cognome:'',telefono:'',tipoEvento:'',chiesa:'',dataEvento:'',luogo:'',soluzione:'',extra:[],indirizzo:'',note:'' }) }}
           >
             Nuova prenotazione
           </button>
@@ -195,6 +235,21 @@ export default function Home() {
               </select>
             </div>
 
+            {form.tipoEvento === 'Battesimo' && (
+              <div className={styles.field}>
+                <label className={styles.label}>Chiesa <span className={styles.req}>*</span></label>
+                <input
+                  className={styles.input}
+                  type="text"
+                  name="chiesa"
+                  value={form.chiesa}
+                  onChange={handleChange}
+                  required
+                  placeholder="Es. Chiesa di San Nicola, Barletta"
+                />
+              </div>
+            )}
+
             <div className={styles.field}>
               <label className={styles.label}>Data dell'evento <span className={styles.req}>*</span></label>
               <input
@@ -239,6 +294,40 @@ export default function Home() {
                 <span className={styles.hint}>Seleziona prima il tipo di evento</span>
               )}
             </div>
+
+            {extraDisponibili.length > 0 && (
+              <div className={styles.field}>
+                <label className={styles.label}>Extra aggiuntivi</label>
+                <div className={styles.checkboxGroup}>
+                  {extraDisponibili.map(ex => (
+                    <label key={ex} className={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        checked={form.extra.includes(ex)}
+                        onChange={() => handleExtra(ex)}
+                        className={styles.checkbox}
+                      />
+                      {ex}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {mostraIndirizzo && (
+              <div className={styles.field}>
+                <label className={styles.label}>Indirizzo di casa <span className={styles.req}>*</span></label>
+                <input
+                  className={styles.input}
+                  type="text"
+                  name="indirizzo"
+                  value={form.indirizzo}
+                  onChange={handleChange}
+                  required
+                  placeholder="Es. Via Roma 12, Barletta"
+                />
+              </div>
+            )}
 
             <div className={styles.field}>
               <label className={styles.label}>Luogo dell'evento <span className={styles.req}>*</span></label>
