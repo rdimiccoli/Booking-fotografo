@@ -299,3 +299,38 @@
   .card { border-left: 0; border-right: 0; border-radius: 0; }
   .main { padding: 0 0 60px; }
 }
+
+/* ---------- CHECKBOX GROUP ---------- */
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--paper);
+  transition: border-color .2s ease, background .2s ease;
+}
+
+.checkboxLabel:hover {
+  border-color: var(--taupe);
+  background: var(--paper-2);
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--taupe-deep);
+  cursor: pointer;
+  flex: none;
+}
