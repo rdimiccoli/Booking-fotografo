@@ -70,6 +70,7 @@ export default function Home() {
     luogo: '',
     soluzione: '',
     extra: [],
+    polaroid: '',
     indirizzo: '',
     note: '',
   })
@@ -82,7 +83,7 @@ export default function Home() {
     setForm(prev => ({
       ...prev,
       [name]: value,
-      ...(name === 'tipoEvento' ? { soluzione: '', chiesa: '', extra: [], indirizzo: '' } : {}),
+      ...(name === 'tipoEvento' ? { soluzione: '', chiesa: '', extra: [], polaroid: '', indirizzo: '' } : {}),
     }))
   }
 
@@ -92,6 +93,13 @@ export default function Home() {
       extra: prev.extra.includes(val)
         ? prev.extra.filter(x => x !== val)
         : [...prev.extra, val],
+    }))
+  }
+
+  const handlePolaroid = (val) => {
+    setForm(prev => ({
+      ...prev,
+      polaroid: prev.polaroid === val ? '' : val,
     }))
   }
 
@@ -120,7 +128,9 @@ export default function Home() {
   }
 
   const soluzioniDisponibili = SOLUZIONI[form.tipoEvento] || []
-  const extraDisponibili = EXTRA[form.tipoEvento] || []
+  const tuttiExtra = EXTRA[form.tipoEvento] || []
+  const extraFotolibro = tuttiExtra.filter(e => e.startsWith('Fotolibro'))
+  const extraPolaroid = tuttiExtra.filter(e => e.startsWith('Polaroid'))
   const mostraIndirizzo = SOLUZIONI_CON_CASA.includes(form.soluzione)
 
   if (stato === 'success') {
@@ -148,7 +158,7 @@ export default function Home() {
           </a>
           <button
             className={styles.btnSecondary}
-            onClick={() => { setStato('idle'); setForm({ nome:'',cognome:'',telefono:'',tipoEvento:'',chiesa:'',dataEvento:'',luogo:'',soluzione:'',extra:[],indirizzo:'',note:'' }) }}
+            onClick={() => { setStato('idle'); setForm({ nome:'',cognome:'',telefono:'',tipoEvento:'',chiesa:'',dataEvento:'',luogo:'',soluzione:'',extra:[],polaroid:'',indirizzo:'',note:'' }) }}
           >
             Nuova prenotazione
           </button>
@@ -295,23 +305,47 @@ export default function Home() {
               )}
             </div>
 
-            {extraDisponibili.length > 0 && (
-              <div className={styles.field}>
-                <label className={styles.label}>Extra aggiuntivi</label>
-                <div className={styles.checkboxGroup}>
-                  {extraDisponibili.map(ex => (
-                    <label key={ex} className={styles.checkboxLabel}>
-                      <input
-                        type="checkbox"
-                        checked={form.extra.includes(ex)}
-                        onChange={() => handleExtra(ex)}
-                        className={styles.checkbox}
-                      />
-                      {ex}
-                    </label>
-                  ))}
-                </div>
-              </div>
+            {tuttiExtra.length > 0 && (
+              <>
+                {extraFotolibro.length > 0 && (
+                  <div className={styles.field}>
+                    <label className={styles.label}>Extra aggiuntivi</label>
+                    <div className={styles.checkboxGroup}>
+                      {extraFotolibro.map(ex => (
+                        <label key={ex} className={styles.checkboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={form.extra.includes(ex)}
+                            onChange={() => handleExtra(ex)}
+                            className={styles.checkbox}
+                          />
+                          {ex}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {extraPolaroid.length > 0 && (
+                  <div className={styles.field}>
+                    <label className={styles.label}>Polaroid</label>
+                    <div className={styles.checkboxGroup}>
+                      {extraPolaroid.map(ex => (
+                        <label key={ex} className={styles.checkboxLabel}>
+                          <input
+                            type="radio"
+                            name="polaroid"
+                            checked={form.polaroid === ex}
+                            onChange={() => handlePolaroid(ex)}
+                            className={styles.checkbox}
+                          />
+                          {ex}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {mostraIndirizzo && (
