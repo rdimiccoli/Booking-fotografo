@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { nome, cognome, telefono, tipoEvento, dataEvento, luogo, soluzione, note } = body
+    const { nome, cognome, telefono, tipoEvento, chiesa, dataEvento, luogo, soluzione, extra, indirizzo, note } = body
 
     if (!nome || !cognome || !telefono || !tipoEvento || !dataEvento || !luogo || !soluzione) {
       return NextResponse.json({ error: 'Campi obbligatori mancanti' }, { status: 400 })
@@ -29,7 +29,10 @@ export async function POST(request) {
 📱 Telefono/WhatsApp: +39${telefono.replace(/\D/g, '')}
 🎉 Tipo evento: ${tipoEvento}
 📦 Soluzione scelta: ${soluzione}
-📍 Luogo: ${luogo}
+${chiesa ? `⛪ Chiesa: ${chiesa}` : ''}
+${indirizzo ? `🏠 Indirizzo casa: ${indirizzo}` : ''}
+📍 Luogo evento: ${luogo}
+${extra && extra.length > 0 ? `✨ Extra: ${extra.join(', ')}` : ''}
 ${note ? `📝 Note: ${note}` : ''}
 
 ---
@@ -86,6 +89,9 @@ Prenotazione ricevuta tramite il form online.
                 <tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Data</td><td style="padding:10px 8px;">${dataFormattata}</td></tr>
                 <tr><td style="padding:10px 0;color:#6B5F52;">Soluzione</td><td style="padding:10px 0;">${soluzione}</td></tr>
                 <tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Luogo</td><td style="padding:10px 8px;">${luogo}</td></tr>
+                ${chiesa ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Chiesa</td><td style="padding:10px 8px;">${chiesa}</td></tr>` : ''}
+                ${indirizzo ? `<tr><td style="padding:10px 0;color:#6B5F52;">Indirizzo casa</td><td style="padding:10px 0;">${indirizzo}</td></tr>` : ''}
+                ${extra && extra.length > 0 ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Extra</td><td style="padding:10px 8px;">${extra.join(', ')}</td></tr>` : ''}
                 ${note ? `<tr><td style="padding:10px 0;color:#6B5F52;">Note</td><td style="padding:10px 0;">${note}</td></tr>` : ''}
               </table>
               <p style="margin-top:32px;font-size:13px;color:#A99C84;">
@@ -101,7 +107,7 @@ Prenotazione ricevuta tramite il form online.
     }
 
     // ── WHATSAPP URL → MESSAGGIO A RUGGIERO ───────────────────────────────
-    const messaggioWA = `Ciao Ruggiero! Ho appena compilato il form di prenotazione 📸\n\n*Ecco il riepilogo:*\n• Nome: ${nome} ${cognome}\n• Evento: ${tipoEvento}\n• Data: ${dataFormattata}\n• Luogo: ${luogo}\n• Soluzione: ${soluzione}\n${note ? `• Note: ${note}\n` : ''}\nAttendo conferma, grazie!`
+    const messaggioWA = `Ciao Ruggiero! Ho appena compilato il form di prenotazione 📸\n\n*Ecco il riepilogo:*\n• Nome: ${nome} ${cognome}\n• Evento: ${tipoEvento}\n• Data: ${dataFormattata}\n• Luogo: ${luogo}\n• Soluzione: ${soluzione}\n${chiesa ? `• Chiesa: ${chiesa}\n` : ''}${indirizzo ? `• Indirizzo casa: ${indirizzo}\n` : ''}${extra && extra.length > 0 ? `• Extra: ${extra.join(', ')}\n` : ''}${note ? `• Note: ${note}\n` : ''}\nAttendo conferma, grazie!`
 
     const whatsappUrl = `https://wa.me/393299392486?text=${encodeURIComponent(messaggioWA)}`
 
