@@ -173,7 +173,7 @@ export default function Home() {
 
         <header className={styles.header}>
           <div className={styles.brand}>Ruggiero Dimiccoli</div>
-          <div className={styles.brandSub}>Fotografia di famiglia &amp; eventi</div>
+          <div className={styles.brandSub}>Fotografia di eventi</div>
           <div className={styles.divider} />
           <h1 className={styles.title}>Prenota il tuo servizio</h1>
           <p className={styles.subtitle}>
