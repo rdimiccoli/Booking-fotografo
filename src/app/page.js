@@ -36,20 +36,40 @@ const SOLUZIONI = {
 const EXTRA = {
   'Primo Compleanno': [
     'Fotolibro aggiuntivo (€150)',
+    'Cartoncino ricordo 15×22 cm — consegna differita (€2,00 cad.)',
+    'Cartoncino ricordo 15×22 cm — consegna in sala (€3,00 cad. + €50 supplemento)',
+    'Cartoncino ricordo 10×15 cm — consegna differita (€1,50 cad.)',
+    'Cartoncino ricordo 10×15 cm — consegna in sala (€2,00 cad. + €40 supplemento)',
     'Polaroid aggiuntive — fino a 100 stampe (€160)',
     'Polaroid solo momento torta — fino a 20 stampe (€80)',
     'Polaroid solo momento torta su cartoncino personalizzato — fino a 20 stampe (€120)',
   ],
   'Battesimo': [
     'Fotolibro aggiuntivo (€180)',
+    'Cartoncino ricordo 15×22 cm — consegna differita (€2,00 cad.)',
+    'Cartoncino ricordo 15×22 cm — consegna in sala (€3,00 cad. + €50 supplemento)',
+    'Cartoncino ricordo 10×15 cm — consegna differita (€1,50 cad.)',
+    'Cartoncino ricordo 10×15 cm — consegna in sala (€2,00 cad. + €40 supplemento)',
     'Polaroid aggiuntive — fino a 100 stampe (€150)',
     'Polaroid solo momento torta — fino a 20 stampe (€80)',
     'Polaroid solo momento torta su cartoncino personalizzato — fino a 20 stampe (€120)',
   ],
   '18° Compleanno': [
     'Fotolibro aggiuntivo (€150)',
+    'Cartoncino ricordo 15×22 cm — consegna differita (€2,00 cad.)',
+    'Cartoncino ricordo 15×22 cm — consegna in sala (€3,00 cad. + €50 supplemento)',
+    'Cartoncino ricordo 10×15 cm — consegna differita (€1,50 cad.)',
+    'Cartoncino ricordo 10×15 cm — consegna in sala (€2,00 cad. + €40 supplemento)',
     'Polaroid aggiuntive — fino a 100 stampe (€150)',
     'Polaroid solo momento torta — fino a 20 stampe (€70)',
+  ],
+  '25° di Matrimonio': [
+    'Fotolibro 30×30 cm (€250)',
+    'Copertura fotografica estesa della festa (€120)',
+    'Cartoncino ricordo 15×22 cm — consegna differita (€2,00 cad.)',
+    'Cartoncino ricordo 15×22 cm — consegna in sala (€3,00 cad. + €50 supplemento)',
+    'Cartoncino ricordo 10×15 cm — consegna differita (€1,50 cad.)',
+    'Cartoncino ricordo 10×15 cm — consegna in sala (€2,00 cad. + €40 supplemento)',
   ],
 }
 
@@ -173,7 +193,7 @@ export default function Home() {
 
         <header className={styles.header}>
           <div className={styles.brand}>Ruggiero Dimiccoli</div>
-          <div className={styles.brandSub}>Fotografia di eventi</div>
+          <div className={styles.brandSub}>Fotografia di famiglia &amp; eventi</div>
           <div className={styles.divider} />
           <h1 className={styles.title}>Prenota il tuo servizio</h1>
           <p className={styles.subtitle}>
