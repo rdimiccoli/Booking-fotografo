@@ -91,6 +91,7 @@ export default function Home() {
     soluzione: '',
     extra: [],
     polaroid: '',
+    cartoncino: '',
     indirizzo: '',
     note: '',
   })
@@ -103,7 +104,7 @@ export default function Home() {
     setForm(prev => ({
       ...prev,
       [name]: value,
-      ...(name === 'tipoEvento' ? { soluzione: '', chiesa: '', extra: [], polaroid: '', indirizzo: '' } : {}),
+      ...(name === 'tipoEvento' ? { soluzione: '', chiesa: '', extra: [], polaroid: '', cartoncino: '', indirizzo: '' } : {}),
     }))
   }
 
@@ -120,6 +121,13 @@ export default function Home() {
     setForm(prev => ({
       ...prev,
       polaroid: prev.polaroid === val ? '' : val,
+    }))
+  }
+
+  const handleCartoncino = (val) => {
+    setForm(prev => ({
+      ...prev,
+      cartoncino: prev.cartoncino === val ? '' : val,
     }))
   }
 
@@ -149,8 +157,9 @@ export default function Home() {
 
   const soluzioniDisponibili = SOLUZIONI[form.tipoEvento] || []
   const tuttiExtra = EXTRA[form.tipoEvento] || []
-  const extraCheckbox = tuttiExtra.filter(e => !e.startsWith('Polaroid'))
+  const extraCheckbox = tuttiExtra.filter(e => !e.startsWith('Polaroid') && !e.startsWith('Cartoncino'))
   const extraPolaroid = tuttiExtra.filter(e => e.startsWith('Polaroid'))
+  const extraCartoncino = tuttiExtra.filter(e => e.startsWith('Cartoncino'))
   const mostraIndirizzo = SOLUZIONI_CON_CASA.includes(form.soluzione)
 
   if (stato === 'success') {
@@ -178,7 +187,7 @@ export default function Home() {
           </a>
           <button
             className={styles.btnSecondary}
-            onClick={() => { setStato('idle'); setForm({ nome:'',cognome:'',telefono:'',tipoEvento:'',chiesa:'',dataEvento:'',luogo:'',soluzione:'',extra:[],polaroid:'',indirizzo:'',note:'' }) }}
+            onClick={() => { setStato('idle'); setForm({ nome:'',cognome:'',telefono:'',tipoEvento:'',chiesa:'',dataEvento:'',luogo:'',soluzione:'',extra:[],polaroid:'',cartoncino:'',indirizzo:'',note:'' }) }}
           >
             Nuova prenotazione
           </button>
@@ -357,6 +366,26 @@ export default function Home() {
                             name="polaroid"
                             checked={form.polaroid === ex}
                             onChange={() => handlePolaroid(ex)}
+                            className={styles.checkbox}
+                          />
+                          {ex}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {extraCartoncino.length > 0 && (
+                  <div className={styles.field}>
+                    <label className={styles.label}>Cartoncino ricordo</label>
+                    <div className={styles.checkboxGroup}>
+                      {extraCartoncino.map(ex => (
+                        <label key={ex} className={styles.checkboxLabel}>
+                          <input
+                            type="radio"
+                            name="cartoncino"
+                            checked={form.cartoncino === ex}
+                            onChange={() => handleCartoncino(ex)}
                             className={styles.checkbox}
                           />
                           {ex}
