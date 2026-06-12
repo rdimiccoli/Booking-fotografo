@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { nome, cognome, telefono, tipoEvento, chiesa, dataEvento, luogo, soluzione, extra, polaroid, indirizzo, note } = body
+    const { nome, cognome, telefono, tipoEvento, chiesa, dataEvento, luogo, soluzione, extra, polaroid, cartoncino, indirizzo, note } = body
 
     if (!nome || !cognome || !telefono || !tipoEvento || !dataEvento || !luogo || !soluzione) {
       return NextResponse.json({ error: 'Campi obbligatori mancanti' }, { status: 400 })
@@ -34,6 +34,7 @@ ${indirizzo ? `🏠 Indirizzo casa: ${indirizzo}` : ''}
 📍 Luogo evento: ${luogo}
 ${extra && extra.length > 0 ? `✨ Extra: ${extra.join(', ')}` : ''}
 ${polaroid ? `📷 Polaroid: ${polaroid}` : ''}
+${cartoncino ? `🖼️ Cartoncino: ${cartoncino}` : ''}
 ${note ? `📝 Note: ${note}` : ''}
 
 ---
@@ -94,6 +95,7 @@ Prenotazione ricevuta tramite il form online.
                 ${indirizzo ? `<tr><td style="padding:10px 0;color:#6B5F52;">Indirizzo casa</td><td style="padding:10px 0;">${indirizzo}</td></tr>` : ''}
                 ${extra && extra.length > 0 ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Extra</td><td style="padding:10px 8px;">${extra.join(', ')}</td></tr>` : ''}
                 ${polaroid ? `<tr><td style="padding:10px 0;color:#6B5F52;">Polaroid</td><td style="padding:10px 0;">${polaroid}</td></tr>` : ''}
+                ${cartoncino ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Cartoncino</td><td style="padding:10px 8px;">${cartoncino}</td></tr>` : ''}
                 ${note ? `<tr><td style="padding:10px 0;color:#6B5F52;">Note</td><td style="padding:10px 0;">${note}</td></tr>` : ''}
               </table>
               <p style="margin-top:32px;font-size:13px;color:#A99C84;">
@@ -109,7 +111,7 @@ Prenotazione ricevuta tramite il form online.
     }
 
     // ── WHATSAPP URL → MESSAGGIO A RUGGIERO ───────────────────────────────
-    const messaggioWA = `Ciao Ruggiero! Ho appena compilato il form di prenotazione 📸\n\n*Ecco il riepilogo:*\n• Nome: ${nome} ${cognome}\n• Evento: ${tipoEvento}\n• Data: ${dataFormattata}\n• Luogo: ${luogo}\n• Soluzione: ${soluzione}\n${chiesa ? `• Chiesa: ${chiesa}\n` : ''}${indirizzo ? `• Indirizzo casa: ${indirizzo}\n` : ''}${extra && extra.length > 0 ? `• Extra: ${extra.join(', ')}\n` : ''}${polaroid ? `• Polaroid: ${polaroid}\n` : ''}${note ? `• Note: ${note}\n` : ''}\nAttendo conferma, grazie!`
+    const messaggioWA = `Ciao Ruggiero! Ho appena compilato il form di prenotazione 📸\n\n*Ecco il riepilogo:*\n• Nome: ${nome} ${cognome}\n• Evento: ${tipoEvento}\n• Data: ${dataFormattata}\n• Luogo: ${luogo}\n• Soluzione: ${soluzione}\n${chiesa ? `• Chiesa: ${chiesa}\n` : ''}${indirizzo ? `• Indirizzo casa: ${indirizzo}\n` : ''}${extra && extra.length > 0 ? `• Extra: ${extra.join(', ')}\n` : ''}${polaroid ? `• Polaroid: ${polaroid}\n` : ''}${cartoncino ? `• Cartoncino: ${cartoncino}\n` : ''}${note ? `• Note: ${note}\n` : ''}\nAttendo conferma, grazie!`
 
     const whatsappUrl = `https://wa.me/393299392486?text=${encodeURIComponent(messaggioWA)}`
 
