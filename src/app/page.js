@@ -63,7 +63,7 @@ const EXTRA = {
     'Polaroid aggiuntive — fino a 100 stampe (€150)',
     'Polaroid solo momento torta — fino a 20 stampe (€70)',
   ],
-  '25° Anniversario di Matrimonio': [
+  '25° di Matrimonio': [
     'Fotolibro 30×30 cm (€250)',
     'Copertura fotografica estesa della festa (€120)',
     'Cartoncino ricordo 15×22 cm — consegna differita (€2,00 cad.)',
@@ -149,7 +149,7 @@ export default function Home() {
 
   const soluzioniDisponibili = SOLUZIONI[form.tipoEvento] || []
   const tuttiExtra = EXTRA[form.tipoEvento] || []
-  const extraFotolibro = tuttiExtra.filter(e => e.startsWith('Fotolibro'))
+  const extraCheckbox = tuttiExtra.filter(e => !e.startsWith('Polaroid'))
   const extraPolaroid = tuttiExtra.filter(e => e.startsWith('Polaroid'))
   const mostraIndirizzo = SOLUZIONI_CON_CASA.includes(form.soluzione)
 
@@ -327,11 +327,11 @@ export default function Home() {
 
             {tuttiExtra.length > 0 && (
               <>
-                {extraFotolibro.length > 0 && (
+                {extraCheckbox.length > 0 && (
                   <div className={styles.field}>
                     <label className={styles.label}>Extra aggiuntivi</label>
                     <div className={styles.checkboxGroup}>
-                      {extraFotolibro.map(ex => (
+                      {extraCheckbox.map(ex => (
                         <label key={ex} className={styles.checkboxLabel}>
                           <input
                             type="checkbox"
