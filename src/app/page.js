@@ -63,7 +63,7 @@ const EXTRA = {
     'Polaroid aggiuntive — fino a 100 stampe (€150)',
     'Polaroid solo momento torta — fino a 20 stampe (€70)',
   ],
-  '25° di Matrimonio': [
+  '25° Anniversario di Matrimonio': [
     'Fotolibro 30×30 cm (€250)',
     'Copertura fotografica estesa della festa (€120)',
     'Cartoncino ricordo 15×22 cm — consegna differita (€2,00 cad.)',
