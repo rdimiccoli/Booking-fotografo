@@ -4,13 +4,21 @@ import { NextResponse } from 'next/server'
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { nome, cognome, telefono, tipoEvento, chiesa, dataEvento, luogo, soluzione, extra, polaroid, cartoncino, indirizzo, note } = body
+    const {
+      nome, cognome, telefono, tipoEvento,
+      chiesa, laureaTipi, laureaFacolta, laureaCitta, laureaOrario, laureaAltriDettagli,
+      dataEvento, luogo, soluzione, extra, polaroid, cartoncino, indirizzo, note
+    } = body
 
-    if (!nome || !cognome || !telefono || !tipoEvento || !dataEvento || !luogo || !soluzione) {
+    // Laurea con solo Seduta: luogo non richiesto
+    const laureaSoloSeduta = tipoEvento === 'Laurea' && Array.isArray(laureaTipi) && laureaTipi.length > 0 && !laureaTipi.includes('Festa')
+
+    const campiBase = !nome || !cognome || !telefono || !tipoEvento || !dataEvento
+    const luogoMancante = !laureaSoloSeduta && !luogo
+    if (campiBase || luogoMancante) {
       return NextResponse.json({ error: 'Campi obbligatori mancanti' }, { status: 400 })
     }
 
-    // ── GOOGLE CALENDAR ────────────────────────────────────────────────────
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
@@ -22,13 +30,18 @@ export async function POST(request) {
     const dataParts = dataEvento.split('-')
     const dataIntera = `${dataParts[0]}-${dataParts[1]}-${dataParts[2]}`
 
+    // Sezione Laurea
+    const laureaInfo = tipoEvento === 'Laurea' && laureaTipi?.length > 0
+      ? `\n🎓 Tipo laurea: ${laureaTipi.join(' + ')}${laureaFacolta ? `\n📚 Facoltà: ${laureaFacolta}` : ''}${laureaCitta ? `\n🏛️ Città sede: ${laureaCitta}` : ''}${laureaOrario ? `\n⏰ Orario seduta: ${laureaOrario}` : ''}${laureaAltriDettagli ? `\n📝 Dettagli seduta: ${laureaAltriDettagli}` : ''}`
+      : ''
+
     const description = `
 📋 RICHIESTA DI PRENOTAZIONE
 
 👤 Cliente: ${nome} ${cognome}
 📱 Telefono/WhatsApp: +39${telefono.replace(/\D/g, '')}
-🎉 Tipo evento: ${tipoEvento}
-📦 Soluzione scelta: ${soluzione}
+🎉 Tipo evento: ${tipoEvento}${laureaInfo}
+${soluzione ? `📦 Soluzione scelta: ${soluzione}` : ''}
 ${chiesa ? `⛪ Chiesa: ${chiesa}` : ''}
 ${indirizzo ? `🏠 Indirizzo casa: ${indirizzo}` : ''}
 📍 Luogo evento: ${luogo}
@@ -59,15 +72,11 @@ Prenotazione ricevuta tramite il form online.
       },
     })
 
-    // ── DATA FORMATTATA ────────────────────────────────────────────────────
     const dataFormattata = new Date(dataEvento + 'T12:00:00').toLocaleDateString('it-IT', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     })
 
-    // ── EMAIL NOTIFICA A RUGGIERO ──────────────────────────────────────────
+    // Email notifica
     try {
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -88,11 +97,16 @@ Prenotazione ricevuta tramite il form online.
                 <tr><td style="padding:10px 0;color:#6B5F52;width:160px;">Cliente</td><td style="padding:10px 0;font-weight:600;">${nome} ${cognome}</td></tr>
                 <tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Telefono</td><td style="padding:10px 8px;">+39${telefono.replace(/\D/g, '')}</td></tr>
                 <tr><td style="padding:10px 0;color:#6B5F52;">Tipo evento</td><td style="padding:10px 0;">${tipoEvento}</td></tr>
-                <tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Data</td><td style="padding:10px 8px;">${dataFormattata}</td></tr>
-                <tr><td style="padding:10px 0;color:#6B5F52;">Soluzione</td><td style="padding:10px 0;">${soluzione}</td></tr>
-                <tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Luogo</td><td style="padding:10px 8px;">${luogo}</td></tr>
-                ${chiesa ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Chiesa</td><td style="padding:10px 8px;">${chiesa}</td></tr>` : ''}
-                ${indirizzo ? `<tr><td style="padding:10px 0;color:#6B5F52;">Indirizzo casa</td><td style="padding:10px 0;">${indirizzo}</td></tr>` : ''}
+                ${laureaTipi?.length > 0 ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Tipo laurea</td><td style="padding:10px 8px;">${laureaTipi.join(' + ')}</td></tr>` : ''}
+                ${laureaFacolta ? `<tr><td style="padding:10px 0;color:#6B5F52;">Facoltà</td><td style="padding:10px 0;">${laureaFacolta}</td></tr>` : ''}
+                ${laureaCitta ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Città sede</td><td style="padding:10px 8px;">${laureaCitta}</td></tr>` : ''}
+                ${laureaOrario ? `<tr><td style="padding:10px 0;color:#6B5F52;">Orario seduta</td><td style="padding:10px 0;">${laureaOrario}</td></tr>` : ''}
+                ${laureaAltriDettagli ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Dettagli seduta</td><td style="padding:10px 8px;">${laureaAltriDettagli}</td></tr>` : ''}
+                <tr><td style="padding:10px 0;color:#6B5F52;">Data</td><td style="padding:10px 0;">${dataFormattata}</td></tr>
+                ${soluzione ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Soluzione</td><td style="padding:10px 8px;">${soluzione}</td></tr>` : ''}
+                ${chiesa ? `<tr><td style="padding:10px 0;color:#6B5F52;">Chiesa</td><td style="padding:10px 0;">${chiesa}</td></tr>` : ''}
+                ${indirizzo ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Indirizzo casa</td><td style="padding:10px 8px;">${indirizzo}</td></tr>` : ''}
+                <tr><td style="padding:10px 0;color:#6B5F52;">Luogo</td><td style="padding:10px 0;">${luogo}</td></tr>
                 ${extra && extra.length > 0 ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Extra</td><td style="padding:10px 8px;">${extra.join(', ')}</td></tr>` : ''}
                 ${polaroid ? `<tr><td style="padding:10px 0;color:#6B5F52;">Polaroid</td><td style="padding:10px 0;">${polaroid}</td></tr>` : ''}
                 ${cartoncino ? `<tr style="background:#F7F3EE;"><td style="padding:10px 8px;color:#6B5F52;">Cartoncino</td><td style="padding:10px 8px;">${cartoncino}</td></tr>` : ''}
@@ -106,26 +120,24 @@ Prenotazione ricevuta tramite il form online.
         }),
       })
     } catch (emailErr) {
-      // L'email non blocca il flusso principale
       console.error('Errore invio email:', emailErr)
     }
 
-    // ── WHATSAPP URL → MESSAGGIO A RUGGIERO ───────────────────────────────
-    const messaggioWA = `Ciao Ruggiero! Ho appena compilato il form di prenotazione 📸\n\n*Ecco il riepilogo:*\n• Nome: ${nome} ${cognome}\n• Evento: ${tipoEvento}\n• Data: ${dataFormattata}\n• Luogo: ${luogo}\n• Soluzione: ${soluzione}\n${chiesa ? `• Chiesa: ${chiesa}\n` : ''}${indirizzo ? `• Indirizzo casa: ${indirizzo}\n` : ''}${extra && extra.length > 0 ? `• Extra: ${extra.join(', ')}\n` : ''}${polaroid ? `• Polaroid: ${polaroid}\n` : ''}${cartoncino ? `• Cartoncino: ${cartoncino}\n` : ''}${note ? `• Note: ${note}\n` : ''}\nAttendo conferma, grazie!`
+    // WhatsApp verso Ruggiero
+    const laureaWA = tipoEvento === 'Laurea' && laureaTipi?.length > 0
+      ? `• Tipo laurea: ${laureaTipi.join(' + ')}\n${laureaFacolta ? `• Facoltà: ${laureaFacolta}\n` : ''}${laureaCitta ? `• Città sede: ${laureaCitta}\n` : ''}${laureaOrario ? `• Orario seduta: ${laureaOrario}\n` : ''}${laureaAltriDettagli ? `• Dettagli seduta: ${laureaAltriDettagli}\n` : ''}`
+      : ''
 
+    const messaggioWA = `Ciao Ruggiero! Ho appena compilato il form di prenotazione 📸\n\n*Ecco il riepilogo:*\n• Nome: ${nome} ${cognome}\n• Evento: ${tipoEvento}\n• Data: ${dataFormattata}\n• Luogo: ${luogo}\n${laureaWA}${soluzione ? `• Soluzione: ${soluzione}\n` : ''}${chiesa ? `• Chiesa: ${chiesa}\n` : ''}${indirizzo ? `• Indirizzo casa: ${indirizzo}\n` : ''}${extra && extra.length > 0 ? `• Extra: ${extra.join(', ')}\n` : ''}${polaroid ? `• Polaroid: ${polaroid}\n` : ''}${cartoncino ? `• Cartoncino: ${cartoncino}\n` : ''}${note ? `• Note: ${note}\n` : ''}\nAttendo conferma, grazie!`
+
+    const numeroPulito = telefono.replace(/\D/g, '')
+    const numeroWA = numeroPulito.startsWith('39') ? numeroPulito : `39${numeroPulito}`
     const whatsappUrl = `https://wa.me/393299392486?text=${encodeURIComponent(messaggioWA)}`
 
-    return NextResponse.json({
-      success: true,
-      eventId: event.data.id,
-      whatsappUrl,
-    })
+    return NextResponse.json({ success: true, eventId: event.data.id, whatsappUrl })
 
   } catch (error) {
     console.error('Errore:', error)
-    return NextResponse.json(
-      { error: "Errore nella creazione dell'evento", details: error.message },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Errore nella creazione dell'evento", details: error.message }, { status: 500 })
   }
 }
