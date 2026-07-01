@@ -54,23 +54,34 @@ ${note ? `📝 Note: ${note}` : ''}
 Prenotazione ricevuta tramite il form online.
     `.trim()
 
-    const event = await calendar.events.insert({
-      calendarId: process.env.GOOGLE_CALENDAR_ID,
-      requestBody: {
-        summary: `📸 ${tipoEvento} — ${nome} ${cognome}`,
-        description,
-        start: { date: dataIntera },
-        end:   { date: dataIntera },
-        colorId: '2',
-        reminders: {
-          useDefault: false,
-          overrides: [
-            { method: 'popup', minutes: 60 * 24 * 7 },
-            { method: 'popup', minutes: 60 * 24 },
-          ],
+    let eventId = null
+    try {
+      console.log('[Calendar] Inserting event for:', tipoEvento, nome, cognome)
+      console.log('[Calendar] calendarId:', process.env.GOOGLE_CALENDAR_ID)
+      console.log('[Calendar] date:', dataIntera)
+      const event = await calendar.events.insert({
+        calendarId: process.env.GOOGLE_CALENDAR_ID,
+        requestBody: {
+          summary: `📸 ${tipoEvento} — ${nome} ${cognome}`,
+          description,
+          start: { date: dataIntera },
+          end:   { date: dataIntera },
+          colorId: '2',
+          reminders: {
+            useDefault: false,
+            overrides: [
+              { method: 'popup', minutes: 60 * 24 * 7 },
+              { method: 'popup', minutes: 60 * 24 },
+            ],
+          },
         },
-      },
-    })
+      })
+      eventId = event.data.id
+      console.log('[Calendar] Event created:', eventId)
+    } catch (calendarErr) {
+      console.error('[Calendar] ERROR:', calendarErr.message)
+      console.error('[Calendar] Full error:', JSON.stringify(calendarErr?.response?.data || calendarErr.message))
+    }
 
     const dataFormattata = new Date(dataEvento + 'T12:00:00').toLocaleDateString('it-IT', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -134,7 +145,7 @@ Prenotazione ricevuta tramite il form online.
     const numeroWA = numeroPulito.startsWith('39') ? numeroPulito : `39${numeroPulito}`
     const whatsappUrl = `https://wa.me/393299392486?text=${encodeURIComponent(messaggioWA)}`
 
-    return NextResponse.json({ success: true, eventId: event.data.id, whatsappUrl })
+    return NextResponse.json({ success: true, eventId, whatsappUrl })
 
   } catch (error) {
     console.error('Errore:', error)
