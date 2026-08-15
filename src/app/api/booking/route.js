@@ -1,107 +1,88 @@
-import { google } from 'googleapis'
 import { NextResponse } from 'next/server'
+import { createCalendarEvent, verifyCalendarConnection } from '@/lib/google-calendar'
+import { sendNotificationEmail } from '@/lib/email'
+import { info, warn, logError, debug, logObject, logFullError } from '@/lib/logger'
 
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { nome, cognome, telefono, tipoEvento, dataEvento, luogo, soluzione, note } = body
+    const {
+      nome, cognome, telefono, email, tipoEvento,
+      chiesa, laureaTipi, laureaFacolta, laureaCitta, laureaOrario, laureaAltriDettagli,
+      dataEvento, luogo, soluzione, extra, polaroid, cartoncino, indirizzo, note
+    } = body
+
+    info(`Nuova richiesta di prenotazione da ${nome} ${cognome}`)
 
     // Validazione campi obbligatori
-    if (!nome || !cognome || !telefono || !tipoEvento || !dataEvento || !luogo || !soluzione) {
-      return NextResponse.json({ error: 'Campi obbligatori mancanti' }, { status: 400 })
+    if (!nome || !cognome || !telefono || !tipoEvento || !dataEvento || !luogo) {
+      warn('Richiesta mancante di campi obbligatori', { missing: ['nome', 'cognome', 'telefono', 'tipoEvento', 'dataEvento', 'luogo'].filter(field => !body[field]) })
+      return NextResponse.json({ 
+        error: 'Campi obbligatori mancanti',
+        missingFields: ['nome', 'cognome', 'telefono', 'tipoEvento', 'dataEvento', 'luogo'].filter(field => !body[field])
+      }, { status: 400 })
     }
 
-    // Setup OAuth2
-    const oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      'http://localhost:3000/api/auth/callback'
-    )
+    // Verifica connessione Google Calendar (non bloccante)
+    const calendarCheck = await verifyCalendarConnection()
+    if (!calendarCheck.success) {
+      logError('Errore Google Calendar:', calendarCheck.message)
+      warn('Il form verrà comunque elaborato ma non verranno creati eventi su Google Calendar')
+    }
 
-    oauth2Client.setCredentials({
-      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-    })
+    // Crea evento su Google Calendar (con retry automatico, non bloccante)
+    let eventDetails = null
+    try {
+      eventDetails = await createCalendarEvent({
+        nome, cognome, telefono, email, tipoEvento,
+        chiesa, laureaTipi, laureaFacolta, laureaCitta, laureaOrario, laureaAltriDettagli,
+        dataEvento, luogo, soluzione, extra, polaroid, cartoncino, indirizzo, note
+      })
+      info('Evento creato su Google Calendar', { eventId: eventDetails.eventId })
+    } catch (calendarError) {
+      logFullError(calendarError, { context: 'POST /api/booking - createCalendarEvent' })
+      warn('Errore creazione evento Google Calendar (non bloccante):', calendarError.message)
+    }
 
-    const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
+    // Invia email notifica (con retry, non bloccante)
+    try {
+      await sendNotificationEmail({
+        nome, cognome, telefono, email, tipoEvento,
+        chiesa, laureaTipi, laureaFacolta, laureaCitta, laureaOrario, laureaAltriDettagli,
+        dataEvento, luogo, soluzione, extra, polaroid, cartoncino, indirizzo, note
+      }, eventDetails)
+      info('Email di notifica inviata')
+    } catch (emailError) {
+      logFullError(emailError, { context: 'POST /api/booking - sendNotificationEmail' })
+      warn('Errore invio email (non bloccante):', emailError.message)
+    }
 
-    // Data evento
-    const eventDate = new Date(dataEvento)
-    const endDate = new Date(dataEvento)
-    endDate.setHours(endDate.getHours() + 1)
-
-    // Descrizione dettagliata per l'attività
-    const description = `
-📋 RICHIESTA DI PRENOTAZIONE
-
-👤 Cliente: ${nome} ${cognome}
-📱 Telefono/WhatsApp: ${telefono}
-🎉 Tipo evento: ${tipoEvento}
-📍 Luogo: ${luogo}
-📦 Soluzione scelta: ${soluzione}
-${note ? `📝 Note: ${note}` : ''}
-
----
-Prenotazione ricevuta tramite il form online.
-    `.trim()
-
-    // Crea l'evento su Google Calendar
-    const event = await calendar.events.insert({
-      calendarId: process.env.GOOGLE_CALENDAR_ID,
-      requestBody: {
-        summary: `📸 ${tipoEvento} — ${nome} ${cognome}`,
-        description,
-        start: {
-          dateTime: eventDate.toISOString(),
-          timeZone: 'Europe/Rome',
-        },
-        end: {
-          dateTime: endDate.toISOString(),
-          timeZone: 'Europe/Rome',
-        },
-        colorId: '2', // Verde salvia
-        reminders: {
-          useDefault: false,
-          overrides: [
-            { method: 'popup', minutes: 60 * 24 * 7 }, // 1 settimana prima
-            { method: 'popup', minutes: 60 * 24 },     // 1 giorno prima
-          ],
-        },
-      },
-    })
-
-    // Genera messaggio WhatsApp recap
-    const dataFormattata = new Date(dataEvento).toLocaleDateString('it-IT', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-
-    const messaggioWhatsApp = `Ciao ${nome}! Ho ricevuto la tua richiesta di prenotazione 📸
-
-*Ecco il riepilogo:*
-• Evento: ${tipoEvento}
-• Data: ${dataFormattata}
-• Luogo: ${luogo}
-• Soluzione: ${soluzione}
-${note ? `• Note: ${note}` : ''}
-
-Ti contatterò a breve per confermare tutti i dettagli. A presto! 🎉`
-
-    const whatsappUrl = `https://wa.me/${telefono.replace(/\D/g, '')}?text=${encodeURIComponent(messaggioWhatsApp)}`
-
-    return NextResponse.json({
+    return NextResponse.json({ 
       success: true,
-      eventId: event.data.id,
-      whatsappUrl,
-      messaggio: messaggioWhatsApp,
+      eventId: eventDetails?.eventId || null,
+      message: 'Richiesta elaborata con successo',
+      googleCalendarConnected: calendarCheck.success
     })
-
-  } catch (error) {
-    console.error('Errore Calendar:', error)
-    return NextResponse.json(
-      { error: 'Errore nella creazione dell\'evento', details: error.message },
-      { status: 500 }
-    )
+    
+  } catch (err) {
+    logFullError(err, { context: 'POST /api/booking - main' })
+    return NextResponse.json({ 
+      error: 'Errore interno del server',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    }, { status: 500 })
   }
+}
+
+export async function GET() {
+  // Endpoint di health check per Google Calendar
+  const calendarCheck = await verifyCalendarConnection()
+  
+  return NextResponse.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    googleCalendar: {
+      connected: calendarCheck.success,
+      message: calendarCheck.message
+    }
+  })
 }
