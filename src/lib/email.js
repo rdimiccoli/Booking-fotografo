@@ -90,6 +90,11 @@ export async function sendNotificationEmail(formData, eventDetails = null) {
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Festeggiato</p>
                 <p style="margin:0;font-weight:600;">${formData.nomeFesteggiato}</p>
               </div>` : ''}
+              ${formData.descrizioneAltro ? `
+              <div style="background:#FAF6F2;padding:12px;border-radius:6px;grid-column:1/-1;">
+                <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Di che evento si tratta</p>
+                <p style="margin:0;">${formData.descrizioneAltro}</p>
+              </div>` : ''}
               ${formData.provenienza ? `
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Arriva da</p>

@@ -23,6 +23,7 @@ export function generateWhatsAppUrl(formData) {
 👤 *Cliente:* ${formData.nome} ${formData.cognome}
 📱 *Telefono:* ${cleanPhone}
 🎉 *Tipo evento:* ${formData.tipoEvento}${laureaInfo}
+${formData.descrizioneAltro ? `📄 *Descrizione:* ${formData.descrizioneAltro}` : ''}
 ${formData.nomeFesteggiato ? `🎂 *Festeggiato:* ${formData.nomeFesteggiato}` : ''}
 
 ${formData.soluzione ? `📦 *Soluzione scelta:* ${getSolutionLabel(formData.soluzione)}` : ''}

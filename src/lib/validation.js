@@ -121,6 +121,11 @@ export function validateForm(formData) {
     }
   }
   
+  // Evento fuori listino: serve la descrizione
+  if (formData.tipoEvento === 'Altro' && !formData.descrizioneAltro?.trim()) {
+    errors.descrizioneAltro = 'Descrivi di che evento si tratta';
+  }
+
   // Data evento
   const dateValidation = validateDate(formData.dataEvento);
   if (!dateValidation.valid) {

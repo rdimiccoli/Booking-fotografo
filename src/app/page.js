@@ -29,6 +29,7 @@ export default function Home() {
     tipoEvento: '',
     nomeFesteggiato: '',
     provenienza: '',
+    descrizioneAltro: '',
     chiesa: '',
     laureaTipi: [],
     laureaFacolta: '',
@@ -150,7 +151,7 @@ export default function Home() {
       ...prev,
       [name]: value,
       ...(name === 'tipoEvento' ? {
-        soluzione: '', chiesa: '', extra: [], polaroid: '', cartoncino: '',
+        soluzione: '', chiesa: '', extra: [], polaroid: '', cartoncino: '', descrizioneAltro: '',
         indirizzo: '', laureaTipi: [], laureaFacolta: '', laureaCitta: '',
         laureaOrario: '', laureaOraSeduta: '', laureaAltriDettagli: '', quantitaCartoncini: 1,
       } : {}),
@@ -538,6 +539,29 @@ export default function Home() {
                 </span>
               )}
             </div>
+
+            {/* Evento non a listino: serve sapere di cosa si tratta */}
+            {form.tipoEvento === 'Altro' && (
+              <div className={styles.field}>
+                <label htmlFor="descrizioneAltro" className={styles.label}>
+                  Di che evento si tratta? <span className={styles.req}>*</span>
+                </label>
+                <textarea
+                  id="descrizioneAltro"
+                  name="descrizioneAltro"
+                  value={form.descrizioneAltro}
+                  onChange={handleChange}
+                  className={erroriForm.descrizioneAltro ? styles.inputError : styles.textarea}
+                  rows={3}
+                  maxLength={500}
+                  placeholder="Es. anniversario di nozze, festa aziendale, servizio di famiglia, gravidanza..."
+                  aria-invalid={!!erroriForm.descrizioneAltro}
+                />
+                {erroriForm.descrizioneAltro
+                  ? <span className={styles.errorText}>{erroriForm.descrizioneAltro}</span>
+                  : <span className={styles.hint}>Raccontami cosa hai in mente: ti preparo un preventivo su misura.</span>}
+              </div>
+            )}
 
             {/* Sezione Extra */}
             {extraCheckbox.length > 0 && (
