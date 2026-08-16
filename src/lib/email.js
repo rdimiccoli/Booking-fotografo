@@ -1,6 +1,7 @@
 // Gestione Resend API per email
 
 import { info, warn, logError, debug } from '@/lib/logger';
+import { getSolutionLabel, getExtraLabel } from '@/config/prices';
 
 const MAX_EMAIL_RETRIES = 2;
 const EMAIL_RETRY_DELAY_MS = 500;
@@ -84,6 +85,16 @@ export async function sendNotificationEmail(formData, eventDetails = null) {
             
             <!-- Event Details -->
             <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+              ${formData.nomeFesteggiato ? `
+              <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
+                <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Festeggiato</p>
+                <p style="margin:0;font-weight:600;">${formData.nomeFesteggiato}</p>
+              </div>` : ''}
+              ${formData.provenienza ? `
+              <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
+                <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Arriva da</p>
+                <p style="margin:0;">${formData.provenienza}</p>
+              </div>` : ''}
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Data evento</p>
                 <p style="margin:0;">${formattedDate}</p>
@@ -96,7 +107,7 @@ export async function sendNotificationEmail(formData, eventDetails = null) {
               ${formData.soluzione ? `
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Soluzione</p>
-                <p style="margin:0;">${formData.soluzione}</p>
+                <p style="margin:0;">${getSolutionLabel(formData.soluzione)}</p>
               </div>` : ''}
               ${formData.chiesa ? `
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
@@ -124,17 +135,17 @@ export async function sendNotificationEmail(formData, eventDetails = null) {
               ${formData.extra && formData.extra.length > 0 ? `
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Extra</p>
-                <p style="margin:0;">${formData.extra.join(', ')}</p>
+                <p style="margin:0;">${formData.extra.map(getExtraLabel).join(', ')}</p>
               </div>` : ''}
               ${formData.polaroid ? `
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Polaroid</p>
-                <p style="margin:0;">${formData.polaroid}</p>
+                <p style="margin:0;">${getExtraLabel(formData.polaroid)}</p>
               </div>` : ''}
               ${formData.cartoncino ? `
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Cartoncino</p>
-                <p style="margin:0;">${formData.cartoncino} ${formData.quantitaCartoncini > 1 ? `(${formData.quantitaCartoncini} pezzi)` : ''}</p>
+                <p style="margin:0;">${getExtraLabel(formData.cartoncino)} ${formData.quantitaCartoncini > 1 ? `(${formData.quantitaCartoncini} pezzi)` : ''}</p>
               </div>` : ''}
             </div>` : ''}
             

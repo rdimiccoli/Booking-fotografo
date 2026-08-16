@@ -110,6 +110,16 @@ export function validateForm(formData) {
   if (!formData.tipoEvento?.trim()) {
     errors.tipoEvento = 'Seleziona un tipo di evento';
   }
+
+  // Nome del festeggiato: obbligatorio tranne che per le richieste generiche
+  if (formData.tipoEvento && formData.tipoEvento !== 'Altro') {
+    const festeggiato = formData.nomeFesteggiato?.trim();
+    if (!festeggiato) {
+      errors.nomeFesteggiato = 'Indica il nome del festeggiato';
+    } else if (festeggiato.length > 80) {
+      errors.nomeFesteggiato = 'Il nome del festeggiato è troppo lungo';
+    }
+  }
   
   // Data evento
   const dateValidation = validateDate(formData.dataEvento);

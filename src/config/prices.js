@@ -6,7 +6,7 @@
 // Cosi' il prezzo che il cliente legge nel preventivo e quello che trova qui
 // restano sempre gli stessi.
 //
-// Generato il 15/08/2026
+// Generato il 16/08/2026
 
 export const SOLUTIONS = {
   'Primo Compleanno': [
@@ -156,4 +156,22 @@ export function getExtraPrice(extraId) {
     if (extra) return { price: extra.price, unit: extra.unit || false, surcharge: extra.surcharge || 0 };
   }
   return null;
+}
+
+// Il form salva gli id (es. 'bat-2'). Nelle email e nei messaggi serve il nome
+// leggibile, altrimenti arriva "Soluzione scelta: bat-2".
+export function getSolutionLabel(solutionId) {
+  for (const category of Object.values(SOLUTIONS)) {
+    const sol = category.find(s => s.id === solutionId);
+    if (sol) return sol.label;
+  }
+  return solutionId || '';
+}
+
+export function getExtraLabel(extraId) {
+  for (const category of Object.values(EXTRAS)) {
+    const extra = category.find(e => e.id === extraId);
+    if (extra) return extra.label;
+  }
+  return extraId || '';
 }

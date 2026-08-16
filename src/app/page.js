@@ -27,6 +27,8 @@ export default function Home() {
     telefono: '',
     email: '',
     tipoEvento: '',
+    nomeFesteggiato: '',
+    provenienza: '',
     chiesa: '',
     laureaTipi: [],
     laureaFacolta: '',
@@ -56,25 +58,46 @@ export default function Home() {
     calcolaPrezzo()
   }, [form.soluzione, form.extra, form.polaroid, form.cartoncino])
 
-  // Arrivo dai preventivi: precompila tipo di evento e soluzione.
-  // Es. /?evento=Battesimo&soluzione=bat-2&origine=preventivo&preventivo=battesimo
+  // Arrivo dai preventivi: precompila evento, soluzione ed extra scelti.
+  // Es. /?evento=Battesimo&soluzione=bat-2&extra=bat-book,bat-pol-100
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
     const evento = q.get('evento')
     const soluzione = q.get('soluzione')
-    if (!evento) return
+    const extraRichiesti = (q.get('extra') || '').split(',').map(s => s.trim()).filter(Boolean)
+    if (!evento || !TIPI_EVENTO.includes(evento)) return
 
     setForm(prev => {
-      if (!TIPI_EVENTO.includes(evento)) return prev
       const next = { ...prev, tipoEvento: evento }
+
       // accetta la soluzione solo se appartiene davvero a questo evento
       const disponibili = SOLUTIONS[evento] || []
       if (soluzione && disponibili.some(s => s.id === soluzione)) next.soluzione = soluzione
+
+      // gli extra vanno smistati: polaroid e cartoncino sono a scelta singola
+      const listaExtra = EXTRAS[evento] || EXTRAS[evento.split(' — ')[0]] || []
+      const scelti = []
+      for (const id of extraRichiesti) {
+        const voce = listaExtra.find(e => e.id === id)
+        if (!voce) continue
+        if (voce.label.startsWith('Polaroid')) next.polaroid = voce.id
+        else if (voce.label.startsWith('Cartoncino')) next.cartoncino = voce.id
+        else scelti.push(voce.id)
+      }
+      if (scelti.length) next.extra = scelti
+
       return next
     })
 
-    const origine = q.get('preventivo')
-    if (origine) info('Arrivo da preventivo', { preventivo: origine, evento, soluzione })
+    // traccia da quale preventivo arriva la richiesta, cosi' finisce
+    // nella notifica insieme al resto
+    const daPreventivo = q.get('preventivo')
+    const cliente = q.get('cliente')
+    if (daPreventivo) {
+      const descr = `preventivo ${daPreventivo}${cliente ? ` · link di ${cliente}` : ''}`
+      setForm(prev => ({ ...prev, provenienza: descr }))
+      info('Arrivo da preventivo', { preventivo: daPreventivo, cliente, evento, soluzione, extra: extraRichiesti })
+    }
   }, [])
 
   const calcolaPrezzo = () => {
@@ -411,7 +434,27 @@ export default function Home() {
                 </select>
                 {erroriForm.tipoEvento && <span className={styles.errorText}>{erroriForm.tipoEvento}</span>}
               </div>
-              
+
+              <div className={styles.field}>
+                <label htmlFor="nomeFesteggiato" className={styles.label}>
+                  Nome festeggiato {form.tipoEvento !== 'Altro' && <span className={styles.req}>*</span>}
+                </label>
+                <input
+                  type="text"
+                  id="nomeFesteggiato"
+                  name="nomeFesteggiato"
+                  value={form.nomeFesteggiato}
+                  onChange={handleChange}
+                  className={erroriForm.nomeFesteggiato ? styles.inputError : styles.input}
+                  placeholder="Es. Sofia, Marco e Anna"
+                  maxLength={80}
+                  aria-invalid={!!erroriForm.nomeFesteggiato}
+                />
+                {erroriForm.nomeFesteggiato && <span className={styles.errorText}>{erroriForm.nomeFesteggiato}</span>}
+              </div>
+            </div>
+
+            <div className={styles.row2}>
               <div className={styles.field}>
                 <label htmlFor="oraEvento" className={styles.label}>
                   Orario evento
@@ -469,32 +512,30 @@ export default function Home() {
               <label htmlFor="soluzione" className={styles.label}>
                 Soluzione scelta <span className={styles.req}>*</span>
               </label>
-              {soluzioniDisponibili.length > 0 ? (
-                <select
-                  id="soluzione"
-                  name="soluzione"
-                  value={form.soluzione}
-                  onChange={handleChange}
-                  className={erroriForm.soluzione ? styles.inputError : styles.select}
-                >
-                  <option value="">Seleziona la soluzione</option>
-                  {soluzioniDisponibili.map(s => (
-                    <option key={s.id} value={s.id}>{s.label}</option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  name="soluzione"
-                  value={form.soluzione}
-                  onChange={handleChange}
-                  className={styles.input}
-                  placeholder="Es. Reportage completo, Solo momento torta..."
-                  disabled={!form.tipoEvento}
-                />
-              )}
+              {/* Sempre una picklist: mai testo libero, altrimenti arrivano
+                  soluzioni scritte a mano che non corrispondono al listino */}
+              <select
+                id="soluzione"
+                name="soluzione"
+                value={form.soluzione}
+                onChange={handleChange}
+                disabled={!form.tipoEvento}
+                className={erroriForm.soluzione ? styles.inputError : styles.select}
+              >
+                <option value="">
+                  {form.tipoEvento ? 'Seleziona la soluzione' : 'Scegli prima il tipo di evento'}
+                </option>
+                {soluzioniDisponibili.map(s => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
+                ))}
+              </select>
               {!form.tipoEvento && (
                 <span className={styles.hint}>Seleziona prima il tipo di evento</span>
+              )}
+              {form.tipoEvento && soluzioniDisponibili.length === 0 && (
+                <span className={styles.hint}>
+                  Nessuna soluzione a listino per questo evento: scrivimi e la definiamo insieme.
+                </span>
               )}
             </div>
 

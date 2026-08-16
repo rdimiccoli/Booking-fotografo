@@ -1,5 +1,7 @@
 // Gestione link WhatsApp
 
+import { getSolutionLabel, getExtraLabel } from '@/config/prices';
+
 export function generateWhatsAppUrl(formData) {
   const phoneNumber = formData.telefono.replace(/\D/g, '');
   
@@ -21,8 +23,9 @@ export function generateWhatsAppUrl(formData) {
 👤 *Cliente:* ${formData.nome} ${formData.cognome}
 📱 *Telefono:* ${cleanPhone}
 🎉 *Tipo evento:* ${formData.tipoEvento}${laureaInfo}
+${formData.nomeFesteggiato ? `🎂 *Festeggiato:* ${formData.nomeFesteggiato}` : ''}
 
-${formData.soluzione ? `📦 *Soluzione scelta:* ${formData.soluzione}` : ''}
+${formData.soluzione ? `📦 *Soluzione scelta:* ${getSolutionLabel(formData.soluzione)}` : ''}
 ${formData.chiesa ? `⛪ *Chiesa:* ${formData.chiesa}` : ''}
 ${formData.indirizzo ? `🏠 *Indirizzo casa:* ${formData.indirizzo}` : ''}
 📍 *Luogo evento:* ${formData.luogo}
@@ -31,11 +34,12 @@ ${formData.oraEvento ? `⏰ *Orario evento:* ${formData.oraEvento}` : ''}
 
 ${formData.dataEvento ? `📅 *Data evento:* ${new Date(formData.dataEvento + 'T12:00:00').toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}` : ''}
 
-${formData.extra && formData.extra.length > 0 ? `✨ *Extra:* ${formData.extra.join(', ')}` : ''}
-${formData.polaroid ? `📷 *Polaroid:* ${formData.polaroid}` : ''}
-${formData.cartoncino ? `🖼️ *Cartoncino:* ${formData.cartoncino}` : ''}
+${formData.extra && formData.extra.length > 0 ? `✨ *Extra:* ${formData.extra.map(getExtraLabel).join(', ')}` : ''}
+${formData.polaroid ? `📷 *Polaroid:* ${getExtraLabel(formData.polaroid)}` : ''}
+${formData.cartoncino ? `🖼️ *Cartoncino:* ${getExtraLabel(formData.cartoncino)}` : ''}
 
 ${formData.note ? `\n📝 *Note:* ${formData.note}` : ''}
+${formData.provenienza ? `🔗 *Arriva da:* ${formData.provenienza}` : ''}
 
 ---
 *Richiesta inviata tramite il form online.*
