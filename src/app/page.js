@@ -30,6 +30,7 @@ export default function Home() {
     nomeFesteggiato: '',
     provenienza: '',
     descrizioneAltro: '',
+    numeroInvitati: '',
     chiesa: '',
     laureaTipi: [],
     laureaFacolta: '',
@@ -336,7 +337,7 @@ export default function Home() {
         <form onSubmit={handleSubmit} className={styles.form}>
           {/* Sezione Dati Personali */}
           <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>Dati personali</legend>
+            <legend className={styles.legend}>I tuoi dati (chi prenota)</legend>
             
             <div className={styles.row2}>
               <div className={styles.field}>
@@ -438,7 +439,7 @@ export default function Home() {
 
               <div className={styles.field}>
                 <label htmlFor="nomeFesteggiato" className={styles.label}>
-                  Nome festeggiato {form.tipoEvento !== 'Altro' && <span className={styles.req}>*</span>}
+                  Nome festeggiato/a {form.tipoEvento !== 'Altro' && <span className={styles.req}>*</span>}
                 </label>
                 <input
                   type="text"
@@ -451,7 +452,9 @@ export default function Home() {
                   maxLength={80}
                   aria-invalid={!!erroriForm.nomeFesteggiato}
                 />
-                {erroriForm.nomeFesteggiato && <span className={styles.errorText}>{erroriForm.nomeFesteggiato}</span>}
+                {erroriForm.nomeFesteggiato
+                  ? <span className={styles.errorText}>{erroriForm.nomeFesteggiato}</span>
+                  : <span className={styles.hint}>Il nome di chi festeggia, non il tuo.</span>}
               </div>
             </div>
 
@@ -469,8 +472,30 @@ export default function Home() {
                   className={styles.input}
                 />
               </div>
+
+              <div className={styles.field}>
+                <label htmlFor="numeroInvitati" className={styles.label}>
+                  Numero invitati
+                </label>
+                <input
+                  type="number"
+                  id="numeroInvitati"
+                  name="numeroInvitati"
+                  value={form.numeroInvitati}
+                  onChange={handleChange}
+                  className={erroriForm.numeroInvitati ? styles.inputError : styles.input}
+                  min="1"
+                  max="2000"
+                  inputMode="numeric"
+                  placeholder="Es. 80"
+                  aria-invalid={!!erroriForm.numeroInvitati}
+                />
+                {erroriForm.numeroInvitati
+                  ? <span className={styles.errorText}>{erroriForm.numeroInvitati}</span>
+                  : <span className={styles.hint}>Anche approssimativo, mi serve per organizzare il servizio.</span>}
+              </div>
             </div>
-            
+
             <div className={styles.row2}>
               <div className={styles.field}>
                 <label htmlFor="dataEvento" className={styles.label}>

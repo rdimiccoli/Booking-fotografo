@@ -20,11 +20,12 @@ export function generateWhatsAppUrl(formData) {
   const message = `
 *📋 RICHIESTA DI PRENOTAZIONE*
 
-👤 *Cliente:* ${formData.nome} ${formData.cognome}
+👤 *Chi prenota:* ${formData.nome} ${formData.cognome}
 📱 *Telefono:* ${cleanPhone}
 🎉 *Tipo evento:* ${formData.tipoEvento}${laureaInfo}
 ${formData.descrizioneAltro ? `📄 *Descrizione:* ${formData.descrizioneAltro}` : ''}
 ${formData.nomeFesteggiato ? `🎂 *Festeggiato:* ${formData.nomeFesteggiato}` : ''}
+${formData.numeroInvitati ? `👥 *Invitati:* ${formData.numeroInvitati}` : ''}
 
 ${formData.soluzione ? `📦 *Soluzione scelta:* ${getSolutionLabel(formData.soluzione)}` : ''}
 ${formData.chiesa ? `⛪ *Chiesa:* ${formData.chiesa}` : ''}

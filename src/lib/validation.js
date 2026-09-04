@@ -115,12 +115,20 @@ export function validateForm(formData) {
   if (formData.tipoEvento && formData.tipoEvento !== 'Altro') {
     const festeggiato = formData.nomeFesteggiato?.trim();
     if (!festeggiato) {
-      errors.nomeFesteggiato = 'Indica il nome del festeggiato';
+      errors.nomeFesteggiato = 'Indica il nome del festeggiato/a, non il tuo';
     } else if (festeggiato.length > 80) {
       errors.nomeFesteggiato = 'Il nome del festeggiato è troppo lungo';
     }
   }
   
+  // Numero invitati: facoltativo, ma se c'e' dev'essere plausibile
+  if (formData.numeroInvitati !== '' && formData.numeroInvitati != null) {
+    const invitati = Number(formData.numeroInvitati);
+    if (!Number.isInteger(invitati) || invitati < 1 || invitati > 2000) {
+      errors.numeroInvitati = 'Indica un numero di invitati tra 1 e 2000';
+    }
+  }
+
   // Evento fuori listino: serve la descrizione
   if (formData.tipoEvento === 'Altro' && !formData.descrizioneAltro?.trim()) {
     errors.descrizioneAltro = 'Descrivi di che evento si tratta';

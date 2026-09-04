@@ -59,7 +59,7 @@ export async function sendNotificationEmail(formData, eventDetails = null) {
             <!-- Cliente Info -->
             <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
-                <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Cliente</p>
+                <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Chi prenota</p>
                 <p style="margin:0;font-weight:600;">${formData.nome} ${formData.cognome}</p>
               </div>
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
@@ -87,7 +87,7 @@ export async function sendNotificationEmail(formData, eventDetails = null) {
             <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
               ${formData.nomeFesteggiato ? `
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
-                <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Festeggiato</p>
+                <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Festeggiato/a</p>
                 <p style="margin:0;font-weight:600;">${formData.nomeFesteggiato}</p>
               </div>` : ''}
               ${formData.descrizioneAltro ? `
@@ -99,6 +99,11 @@ export async function sendNotificationEmail(formData, eventDetails = null) {
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Arriva da</p>
                 <p style="margin:0;">${formData.provenienza}</p>
+              </div>` : ''}
+              ${formData.numeroInvitati ? `
+              <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
+                <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Invitati</p>
+                <p style="margin:0;">${formData.numeroInvitati}</p>
               </div>` : ''}
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Data evento</p>
