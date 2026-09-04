@@ -31,6 +31,7 @@ export default function Home() {
     provenienza: '',
     descrizioneAltro: '',
     numeroInvitati: '',
+    festeggiatoComeCliente: false,
     chiesa: '',
     laureaTipi: [],
     laureaFacolta: '',
@@ -146,6 +147,12 @@ export default function Home() {
     setPrezzoTotale(totale)
   }
 
+  useEffect(() => {
+    if (!form.festeggiatoComeCliente) return
+    const completo = `${form.nome} ${form.cognome}`.trim()
+    setForm(prev => prev.nomeFesteggiato === completo ? prev : { ...prev, nomeFesteggiato: completo })
+  }, [form.nome, form.cognome, form.festeggiatoComeCliente])
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm(prev => ({
@@ -170,6 +177,17 @@ export default function Home() {
         ? { soluzione: '', extra: [], polaroid: '', cartoncino: '' }
         : {}),
     }))
+  }
+
+  // "Lo stesso di sopra": quando a prenotare e' il festeggiato stesso
+  const handleFesteggiatoComeCliente = (e) => {
+    const attivo = e.target.checked
+    setForm(prev => ({
+      ...prev,
+      festeggiatoComeCliente: attivo,
+      nomeFesteggiato: attivo ? `${prev.nome} ${prev.cognome}`.trim() : '',
+    }))
+    setErroriForm(prev => ({ ...prev, nomeFesteggiato: '' }))
   }
 
   const handleExtra = (val) => {
@@ -450,11 +468,22 @@ export default function Home() {
                   className={erroriForm.nomeFesteggiato ? styles.inputError : styles.input}
                   placeholder="Es. Sofia, Marco e Anna"
                   maxLength={80}
+                  disabled={form.festeggiatoComeCliente}
                   aria-invalid={!!erroriForm.nomeFesteggiato}
                 />
+
+                <label className={styles.checkSmall}>
+                  <input
+                    type="checkbox"
+                    checked={form.festeggiatoComeCliente}
+                    onChange={handleFesteggiatoComeCliente}
+                  />
+                  Lo stesso di sopra
+                </label>
+
                 {erroriForm.nomeFesteggiato
                   ? <span className={styles.errorText}>{erroriForm.nomeFesteggiato}</span>
-                  : <span className={styles.hint}>Il nome di chi festeggia, non il tuo.</span>}
+                  : <span className={styles.hint}>Il nome di chi festeggia, anche se sei tu.</span>}
               </div>
             </div>
 

@@ -115,7 +115,7 @@ export function validateForm(formData) {
   if (formData.tipoEvento && formData.tipoEvento !== 'Altro') {
     const festeggiato = formData.nomeFesteggiato?.trim();
     if (!festeggiato) {
-      errors.nomeFesteggiato = 'Indica il nome del festeggiato/a, non il tuo';
+      errors.nomeFesteggiato = 'Indica il nome di chi festeggia';
     } else if (festeggiato.length > 80) {
       errors.nomeFesteggiato = 'Il nome del festeggiato è troppo lungo';
     }

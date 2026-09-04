@@ -529,3 +529,29 @@
   .whatsappButton { width: calc(100% - 48px); margin: 16px 24px 12px; }
   .extraGrid { grid-template-columns: 1fr; }
 }
+
+/* Casella "Lo stesso di sopra" sotto il nome del festeggiato:
+   deve restare leggera, e' un aiuto non un campo */
+.checkSmall {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  font-size: .82rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkSmall input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  margin: 0;
+  accent-color: var(--taupe-deep);
+  cursor: pointer;
+}
+
+.checkSmall:hover {
+  color: var(--ink);
+}
