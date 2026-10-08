@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createCalendarEvent, verifyCalendarConnection } from '@/lib/google-calendar'
 import { sendNotificationEmail } from '@/lib/email'
+import { archiviaPrenotazione } from '@/lib/archivio'
 import { info, warn, logError, debug, logObject, logFullError } from '@/lib/logger'
 
 export async function POST(request) {
@@ -59,11 +60,23 @@ export async function POST(request) {
       warn('Errore invio email (non bloccante):', emailError.message)
     }
 
+    // Copia consultabile della prenotazione: calendario e mail da soli non
+    // bastano, se la mail non arriva il dato e' perso.
+    let archiviata = false
+    try {
+      const esito = await archiviaPrenotazione(prenotazione, eventDetails?.eventId || null)
+      archiviata = esito.success
+      if (!esito.success) warn('Prenotazione non archiviata (non bloccante):', esito.message)
+    } catch (archivioError) {
+      logFullError(archivioError, { context: 'POST /api/booking - archiviaPrenotazione' })
+    }
+
     return NextResponse.json({ 
       success: true,
       eventId: eventDetails?.eventId || null,
       message: 'Richiesta elaborata con successo',
-      googleCalendarConnected: calendarCheck.success
+      googleCalendarConnected: calendarCheck.success,
+      archiviata
     })
     
   } catch (err) {
