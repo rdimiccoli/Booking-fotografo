@@ -1,6 +1,6 @@
 // Gestione link WhatsApp
 
-import { getSolutionLabel, getExtraLabel } from '@/config/prices';
+import { describeSolution, describeExtra, getSolution, formatPrice, calcolaTotale } from '@/config/prices';
 
 export function generateWhatsAppUrl(formData) {
   const phoneNumber = formData.telefono.replace(/\D/g, '');
@@ -27,18 +27,19 @@ ${formData.descrizioneAltro ? `📄 *Descrizione:* ${formData.descrizioneAltro}`
 ${formData.nomeFesteggiato ? `🎂 *Festeggiato:* ${formData.nomeFesteggiato}` : ''}
 ${formData.numeroInvitati ? `👥 *Invitati:* ${formData.numeroInvitati}` : ''}
 
-${formData.soluzione ? `📦 *Soluzione scelta:* ${getSolutionLabel(formData.soluzione)}` : ''}
+${formData.soluzione ? `📦 *Soluzione scelta:* ${describeSolution(formData.soluzione)}${getSolution(formData.soluzione)?.desc ? `\n_${getSolution(formData.soluzione).desc}_` : ''}` : ''}
 ${formData.chiesa ? `⛪ *Chiesa:* ${formData.chiesa}` : ''}
 ${formData.indirizzo ? `🏠 *Indirizzo casa:* ${formData.indirizzo}` : ''}
 📍 *Luogo evento:* ${formData.luogo}
 
-${formData.oraEvento ? `⏰ *Orario evento:* ${formData.oraEvento}` : ''}
+${formData.momento ? `⏰ *Quando:* ${formData.momento}` : ''}
 
 ${formData.dataEvento ? `📅 *Data evento:* ${new Date(formData.dataEvento + 'T12:00:00').toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}` : ''}
 
-${formData.extra && formData.extra.length > 0 ? `✨ *Extra:* ${formData.extra.map(getExtraLabel).join(', ')}` : ''}
-${formData.polaroid ? `📷 *Polaroid:* ${getExtraLabel(formData.polaroid)}` : ''}
-${formData.cartoncino ? `🖼️ *Cartoncino:* ${getExtraLabel(formData.cartoncino)}` : ''}
+${formData.extra && formData.extra.length > 0 ? `✨ *Extra:*\n${formData.extra.map(id => `• ${describeExtra(id, formData.quantitaCartoncini)}`).join('\n')}` : ''}
+${formData.polaroid ? `📷 *Polaroid:* ${describeExtra(formData.polaroid)}` : ''}
+${formData.cartoncino ? `🖼️ *Cartoncino:* ${describeExtra(formData.cartoncino, formData.quantitaCartoncini)}` : ''}
+${calcolaTotale(formData) > 0 ? `💰 *Totale:* ${formatPrice(calcolaTotale(formData))}` : ''}
 
 ${formData.note ? `\n📝 *Note:* ${formData.note}` : ''}
 ${formData.provenienza ? `🔗 *Arriva da:* ${formData.provenienza}` : ''}

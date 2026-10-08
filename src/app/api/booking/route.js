@@ -6,11 +6,16 @@ import { info, warn, logError, debug, logObject, logFullError } from '@/lib/logg
 export async function POST(request) {
   try {
     const body = await request.json()
-    const {
-      nome, cognome, telefono, email, tipoEvento,
-      chiesa, laureaTipi, laureaFacolta, laureaCitta, laureaOrario, laureaAltriDettagli,
-      dataEvento, luogo, soluzione, extra, polaroid, cartoncino, indirizzo, note
-    } = body
+    const { nome, cognome, tipoEvento } = body
+
+    // Tutti i campi del form, senza riscriverli uno per uno: quando il form
+    // guadagna un campo nuovo arriva da solo al calendario e alla mail.
+    const prenotazione = {
+      ...body,
+      telefono: String(body.telefono || ''),
+      extra: Array.isArray(body.extra) ? body.extra : [],
+      laureaTipi: Array.isArray(body.laureaTipi) ? body.laureaTipi : [],
+    }
 
     info(`Nuova richiesta di prenotazione da ${nome} ${cognome}`)
 
@@ -38,11 +43,7 @@ export async function POST(request) {
     // Crea evento su Google Calendar (con retry automatico, non bloccante)
     let eventDetails = null
     try {
-      eventDetails = await createCalendarEvent({
-        nome, cognome, telefono, email, tipoEvento,
-        chiesa, laureaTipi, laureaFacolta, laureaCitta, laureaOrario, laureaAltriDettagli,
-        dataEvento, luogo, soluzione, extra, polaroid, cartoncino, indirizzo, note
-      })
+      eventDetails = await createCalendarEvent(prenotazione)
       info('Evento creato su Google Calendar', { eventId: eventDetails.eventId })
     } catch (calendarError) {
       logFullError(calendarError, { context: 'POST /api/booking - createCalendarEvent' })
@@ -51,11 +52,7 @@ export async function POST(request) {
 
     // Invia email notifica (con retry, non bloccante)
     try {
-      await sendNotificationEmail({
-        nome, cognome, telefono, email, tipoEvento,
-        chiesa, laureaTipi, laureaFacolta, laureaCitta, laureaOrario, laureaAltriDettagli,
-        dataEvento, luogo, soluzione, extra, polaroid, cartoncino, indirizzo, note
-      }, eventDetails)
+      await sendNotificationEmail(prenotazione, eventDetails)
       info('Email di notifica inviata')
     } catch (emailError) {
       logFullError(emailError, { context: 'POST /api/booking - sendNotificationEmail' })

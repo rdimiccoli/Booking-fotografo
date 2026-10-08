@@ -140,6 +140,11 @@ export function validateForm(formData) {
     errors.dataEvento = dateValidation.error;
   }
   
+  // Mattina o sera: e' l'unica indicazione di orario che chiedo al cliente
+  if (!['Mattina', 'Sera'].includes(formData.momento)) {
+    errors.momento = 'Indica se la festa è di mattina o di sera';
+  }
+
   // Luogo evento — non richiesto per la sola seduta di laurea, che si svolge
   // in facolta': la sede si ricava da facolta' e citta'
   if (formData.tipoEvento !== 'Laurea — Seduta' && !formData.luogo?.trim()) {

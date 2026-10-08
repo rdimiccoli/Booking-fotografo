@@ -2,6 +2,7 @@
 
 import { google } from 'googleapis';
 import { info, warn, logError, debug, logObject, logFullError } from '@/lib/logger';
+import { describeSolution, describeExtra, getSolution, formatPrice, calcolaTotale } from '@/config/prices';
 
 let calendarClient = null;
 
@@ -139,67 +140,103 @@ export async function createCalendarEvent(eventData) {
 }
 
 /**
+ * Il giorno dopo, in formato "YYYY-MM-DD".
+ * Per Google un evento di giornata finisce il giorno successivo a quello che
+ * occupa: con la stessa data in start e end l'evento non comparirebbe.
+ */
+function giornoDopo(dataEvento) {
+  const [anno, mese, giorno] = dataEvento.split('-').map(Number);
+  return new Date(Date.UTC(anno, mese - 1, giorno + 1)).toISOString().slice(0, 10);
+}
+
+/**
  * Formatta i dati del form in un evento Google Calendar
  */
 function formatCalendarEvent(data) {
-  const [year, month, day] = data.dataEvento.split('-').map(Number);
-  
-  // Calcola ora di inizio e fine (default: 14:00 - 18:00 se non specificato)
-  let startHour = 14;
-  let endHour = 18;
-  
-  if (data.oraEvento) {
-    const [hours, minutes] = data.oraEvento.split(':').map(Number);
-    startHour = hours;
-    endHour = Math.min(hours + 4, 23); // Evento di max 4 ore
+  // Al cliente chiedo solo mattina o sera, e l'evento occupa il giorno intero:
+  // un orario di inizio e fine sarebbe inventato.
+  const momento = ['Mattina', 'Sera'].includes(data.momento) ? data.momento : '';
+
+  const righe = [];
+  const r = (testo) => righe.push(testo);
+
+  r(`Nuova prenotazione da ${data.nome} ${data.cognome}`);
+  r('');
+  r(`📞 Telefono: +39${data.telefono.replace(/\D/g, '')}`);
+  if (data.email) r(`📧 Email: ${data.email}`);
+
+  r('');
+  r('📋 Evento');
+  r(`• Tipo: ${data.tipoEvento}`);
+  if (data.descrizioneAltro) r(`• Di cosa si tratta: ${data.descrizioneAltro}`);
+  if (data.nomeFesteggiato) r(`• Festeggiato/a: ${data.nomeFesteggiato}`);
+  if (data.numeroInvitati) r(`• Invitati: ${data.numeroInvitati}`);
+  r(`• Quando: ${momento ? momento.toLowerCase() : 'non indicato'}`);
+  if (data.chiesa) r(`• Chiesa: ${data.chiesa}`);
+  if (data.luogo && data.luogo !== data.chiesa) r(`• Luogo: ${data.luogo}`);
+
+  if (data.laureaTipi?.length > 0) {
+    r('');
+    r('🎓 Laurea');
+    r(`• Tipo: ${data.laureaTipi.join(' + ')}`);
+    if (data.laureaFacolta) r(`• Facoltà: ${data.laureaFacolta}`);
+    if (data.laureaCitta) r(`• Città: ${data.laureaCitta}`);
+    if (data.laureaOraSeduta) r(`• Ora della seduta: ${data.laureaOraSeduta}`);
+    else if (data.laureaOrario) r(`• Orario seduta: ${data.laureaOrario}`);
+    if (data.laureaAltriDettagli) r(`• Altro: ${data.laureaAltriDettagli}`);
   }
-  
-  const startDate = new Date(year, month - 1, day, startHour, 0, 0);
-  const endDate = new Date(year, month - 1, day, endHour, 0, 0);
-  
-  // Formatta la descrizione
-  let description = `Nuova prenotazione da ${data.nome} ${data.cognome}\n\n`;
-  description += `📞 Telefono: +39${data.telefono.replace(/\D/g, '')}\n`;
-  if (data.email) description += `📧 Email: ${data.email}\n`;
-  description += `\n📋 Dettagli evento:\n`;
-  description += `- Tipo: ${data.tipoEvento}\n`;
-  
-  // Aggiungi dettagli specifici per tipo evento
-  if (data.chiesa) description += `- Chiesa: ${data.chiesa}\n`;
-  if (data.luogo && data.luogo !== data.chiesa) description += `- Luogo: ${data.luogo}\n`;
-  
-  // Dettagli laurea se presente
-  if (data.tipoEvento === 'Laurea' && data.laureaTipi?.length > 0) {
-    description += `\n🎓 Informazioni Laurea:\n`;
-    description += `- Tipo: ${data.laureaTipi.join(' + ')}\n`;
-    if (data.laureaFacolta) description += `- Facoltà: ${data.laureaFacolta}\n`;
-    if (data.laureaCitta) description += `- Città: ${data.laureaCitta}\n`;
-    if (data.laureaOrario) description += `- Orario seduta: ${data.laureaOrario}\n`;
+
+  // Soluzione: prima si leggeva solo l'id ("Soluzione selezionata: 18-1").
+  if (data.soluzione) {
+    const sol = getSolution(data.soluzione);
+    r('');
+    r(`📸 Soluzione scelta: ${describeSolution(data.soluzione)}`);
+    if (sol?.desc) r(`   ${sol.desc}`);
   }
-  
-  // Aggiungi soluzione e extra
-  if (data.soluzione) description += `\n📸 Soluzione selezionata: ${data.soluzione}\n`;
-  if (data.extra?.length > 0) description += `➕ Extra: ${data.extra.join(', ')}\n`;
-  
-  // Dettagli aggiuntivi
-  if (data.polaroid) description += `\nPolaroid: ${data.polaroid ? 'Sì' : 'No'}\n`;
-  if (data.cartoncino) description += `Cartoncini: ${data.cartoncino}\n`;
-  
-  if (data.indirizzo) description += `\n📍 Indirizzo evento:\n${data.indirizzo}\n`;
-  if (data.note) description += `\n📝 Note cliente:\n${data.note}\n`;
-  
+
+  // Polaroid e cartoncini sono extra come gli altri: il form li tiene solo in
+  // campi separati. Qui vanno nella stessa lista, con il dettaglio di cosa sono.
+  const extra = [
+    ...(data.extra || []),
+    data.polaroid,
+    data.cartoncino,
+  ].filter(Boolean);
+
+  if (extra.length > 0) {
+    r('');
+    r('➕ Extra');
+    for (const id of extra) r(`• ${describeExtra(id, data.quantitaCartoncini)}`);
+  }
+
+  const totale = calcolaTotale(data);
+  if (totale > 0) {
+    r('');
+    r(`💰 Totale: ${formatPrice(totale)}`);
+  }
+
+  if (data.indirizzo || data.provenienza) r('');
+  if (data.indirizzo) r(`📍 Indirizzo: ${data.indirizzo}`);
+  if (data.provenienza) r(`🔗 Arriva da: ${data.provenienza}`);
+  if (data.note) {
+    r('');
+    r('📝 Note del cliente:');
+    r(data.note);
+  }
+
+  // Nel titolo va il protagonista della festa, non chi ha compilato il form.
+  const chiPrenota = `${data.nome} ${data.cognome}`.trim();
+  const festeggiato = (data.nomeFesteggiato || '').trim();
+  const chi = festeggiato && festeggiato.toLowerCase() !== chiPrenota.toLowerCase()
+    ? `${festeggiato} (prenota ${chiPrenota})`
+    : chiPrenota;
+  const titolo = `${momento ? `${momento} · ` : ''}${data.tipoEvento} — ${chi}`;
+
   return {
-    summary: `${data.tipoEvento}: ${data.nome} ${data.cognome}`,
-    description: description.trim(),
-    start: {
-      dateTime: startDate.toISOString(),
-      timeZone: 'Europe/Rome'
-    },
-    end: {
-      dateTime: endDate.toISOString(),
-      timeZone: 'Europe/Rome'
-    },
-    attendees: data.email ? [{ email: data.email, displayName: `${data.nome} ${data.cognome}` }] : [],
+    summary: titolo,
+    description: righe.join('\n').trim(),
+    start: { date: data.dataEvento },
+    end: { date: giornoDopo(data.dataEvento) },
+    attendees: data.email ? [{ email: data.email, displayName: chiPrenota }] : [],
     reminders: {
       useDefault: true
     }

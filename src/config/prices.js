@@ -6,53 +6,78 @@
 // Cosi' il prezzo che il cliente legge nel preventivo e quello che trova qui
 // restano sempre gli stessi.
 //
-// Generato il 16/08/2026
+// Generato il 01/10/2026
 
 export const SOLUTIONS = {
   'Primo Compleanno': [
-    { id: 'pc-1', label: 'Soluzione 1 — Reportage completo', price: 240 },
-    { id: 'pc-2', label: 'Soluzione 2 — Sessione a casa', price: 210 },
-    { id: 'pc-3', label: 'Soluzione 3 — Solo momento torta', price: 170 },
+    { id: 'pc-1', label: 'Soluzione 1 — Reportage completo', price: 240,
+      desc: 'Servizio fotografico dell’intera festa' },
+    { id: 'pc-2', label: 'Soluzione 2 — Sessione a casa', price: 210,
+      desc: 'Servizio fotografico a casa prima della festa' },
+    { id: 'pc-3', label: 'Soluzione 3 — Solo momento torta', price: 170,
+      desc: 'Servizio fotografico del solo momento torta' },
   ],
   'Battesimo': [
-    { id: 'bat-1', label: 'Soluzione 1 — Solo celebrazione', price: 100 },
-    { id: 'bat-2', label: 'Soluzione 2 — Messa e ristorante', price: 240 },
-    { id: 'bat-3', label: 'Soluzione 3 — Giornata completa', price: 350 },
+    { id: 'bat-1', label: 'Soluzione 1 — Solo celebrazione', price: 100,
+      desc: 'Servizio fotografico in chiesa' },
+    { id: 'bat-2', label: 'Soluzione 2 — Messa e ristorante', price: 240,
+      desc: 'Servizio fotografico in chiesa ed al ristorante' },
+    { id: 'bat-3', label: 'Soluzione 3 — Giornata completa', price: 350,
+      desc: "Servizio fotografico dell'intera giornata" },
   ],
   'Comunione': [
-    { id: 'comm-1', label: 'Soluzione 1 — Celebrazione + ritratti', price: 200 },
-    { id: 'comm-2', label: 'Soluzione 2 — Giornata completa', price: 320 },
+    { id: 'comm-1', label: 'Soluzione 1 — Celebrazione + ritratti', price: 200,
+      desc: 'Servizio fotografico in chiesa e ritratti dopo la celebrazione' },
+    { id: 'comm-2', label: 'Soluzione 2 — Giornata completa', price: 320,
+      desc: "Servizio fotografico dell'intera giornata, dalla vestizione al ristorante" },
   ],
   'Cresima': [
-    { id: 'cres-1', label: 'Soluzione 1 — Celebrazione + ritratti', price: 220 },
-    { id: 'cres-2', label: 'Soluzione 2 — Giornata completa', price: 350 },
+    { id: 'cres-1', label: 'Soluzione 1 — Celebrazione + ritratti', price: 220,
+      desc: 'Servizio fotografico in chiesa e ritratti dopo la celebrazione' },
+    { id: 'cres-2', label: 'Soluzione 2 — Giornata completa', price: 350,
+      desc: "Servizio fotografico dell'intera giornata, dalla vestizione al ristorante" },
   ],
   '18° Compleanno': [
-    { id: '18-1', label: 'Soluzione 1 — Reportage completo', price: 250 },
-    { id: '18-2', label: 'Soluzione 2 — Shooting + festa', price: 380 },
-    { id: '18-3', label: 'Soluzione 3 — Fino al primo ballo', price: 190 },
-    { id: '18-4', label: 'Soluzione 4 — Essenziale', price: 90 },
+    { id: '18-1', label: 'Soluzione 1 — Reportage completo', price: 250,
+      desc: 'Servizio fotografico della festa' },
+    { id: '18-2', label: 'Soluzione 2 — Shooting + festa', price: 380,
+      desc: 'Shooting fotografico pre o post festa' },
+    { id: '18-3', label: 'Soluzione 3 — Fino al primo ballo', price: 190,
+      desc: "Servizio fotografico dall'inizio della festa alla prima pausa ballo" },
+    { id: '18-4', label: 'Soluzione 4 — Essenziale', price: 90,
+      desc: 'Servizio fotografico del solo momento torta' },
   ],
   'Laurea — Seduta': [
-    { id: 'laurea-seduta-1', label: 'Soluzione 1 — La seduta in facoltà', price: 150 },
+    { id: 'laurea-seduta-1', label: 'Soluzione 1 — La seduta in facoltà', price: 150,
+      desc: 'Servizio fotografico della seduta presso la facoltà' },
   ],
   'Laurea — Festa': [
-    { id: 'laurea-festa-1', label: 'Soluzione 1 — Reportage completo', price: 250 },
-    { id: 'laurea-festa-2', label: 'Soluzione 2 — Fino al primo ballo', price: 180 },
-    { id: 'laurea-festa-3', label: 'Soluzione 3 — Essenziale', price: 80 },
+    { id: 'laurea-festa-1', label: 'Soluzione 1 — Reportage completo', price: 250,
+      desc: 'Servizio fotografico della festa' },
+    { id: 'laurea-festa-2', label: 'Soluzione 2 — Fino al primo ballo', price: 180,
+      desc: "Servizio fotografico dall'inizio della festa al primo ballo" },
+    { id: 'laurea-festa-3', label: 'Soluzione 3 — Essenziale', price: 80,
+      desc: 'Servizio fotografico del solo momento torta' },
   ],
   '25° Anniversario di Matrimonio': [
-    { id: 'ann25-1', label: 'Soluzione 1 — Solo celebrazione', price: 120 },
-    { id: 'ann25-2', label: 'Soluzione 2 — Messa e ristorante', price: 280 },
-    { id: 'ann25-3', label: 'Soluzione 3 — Giornata completa', price: 360 },
+    { id: 'ann25-1', label: 'Soluzione 1 — Solo celebrazione', price: 120,
+      desc: 'Servizio fotografico durante la celebrazione della messa' },
+    { id: 'ann25-2', label: 'Soluzione 2 — Messa e ristorante', price: 280,
+      desc: 'Servizio fotografico della messa e scatti al ristorante' },
+    { id: 'ann25-3', label: 'Soluzione 3 — Giornata completa', price: 360,
+      desc: 'Servizio fotografico a casa, durante la messa e scatti al ristorante' },
   ],
   '50° Anniversario di Matrimonio': [
-    { id: 'ann50-1', label: 'Soluzione 1 — Solo celebrazione', price: 100 },
-    { id: 'ann50-2', label: 'Soluzione 2 — Messa e momento torta', price: 220 },
-    { id: 'ann50-3', label: 'Soluzione 3 — Giornata completa', price: 360 },
+    { id: 'ann50-1', label: 'Soluzione 1 — Solo celebrazione', price: 100,
+      desc: 'Servizio fotografico durante la celebrazione della messa' },
+    { id: 'ann50-2', label: 'Soluzione 2 — Messa e momento torta', price: 220,
+      desc: 'Servizio fotografico della messa e scatti al ristorante' },
+    { id: 'ann50-3', label: 'Soluzione 3 — Giornata completa', price: 360,
+      desc: 'Servizio fotografico a casa, durante la messa e al ristorante' },
   ],
   'Altro': [
-    { id: 'altro-1', label: 'Soluzione personalizzata', price: 'Su preventivo' },
+    { id: 'altro-1', label: 'Soluzione personalizzata', price: 'Su preventivo',
+      desc: 'Da concordare insieme al cliente' },
   ],
 };
 
@@ -158,20 +183,76 @@ export function getExtraPrice(extraId) {
   return null;
 }
 
-// Il form salva gli id (es. 'bat-2'). Nelle email e nei messaggi serve il nome
-// leggibile, altrimenti arriva "Soluzione scelta: bat-2".
-export function getSolutionLabel(solutionId) {
+export function getSolution(solutionId) {
   for (const category of Object.values(SOLUTIONS)) {
     const sol = category.find(s => s.id === solutionId);
-    if (sol) return sol.label;
+    if (sol) return sol;
   }
-  return solutionId || '';
+  return null;
+}
+
+export function getExtra(extraId) {
+  for (const category of Object.values(EXTRAS)) {
+    const extra = category.find(e => e.id === extraId);
+    if (extra) return extra;
+  }
+  return null;
+}
+
+// Il form salva gli id (es. 'bat-2'). Nelle email, nei messaggi e sul calendario
+// serve il nome leggibile, altrimenti arriva "Soluzione scelta: bat-2".
+export function getSolutionLabel(solutionId) {
+  return getSolution(solutionId)?.label || solutionId || '';
 }
 
 export function getExtraLabel(extraId) {
-  for (const category of Object.values(EXTRAS)) {
-    const extra = category.find(e => e.id === extraId);
-    if (extra) return extra.label;
+  return getExtra(extraId)?.label || extraId || '';
+}
+
+export function formatPrice(price) {
+  if (typeof price !== 'number') return price || '';
+  return `${Number.isInteger(price) ? price : price.toFixed(2).replace('.', ',')}€`;
+}
+
+// Riga pronta da leggere: nome della soluzione e prezzo.
+export function describeSolution(solutionId) {
+  const sol = getSolution(solutionId);
+  if (!sol) return solutionId || '';
+  const prezzo = formatPrice(sol.price);
+  return prezzo ? `${sol.label} · ${prezzo}` : sol.label;
+}
+
+// Idem per gli extra. I cartoncini si pagano a pezzo: qui il conto e' gia' fatto.
+export function describeExtra(extraId, quantita = 1) {
+  const extra = getExtra(extraId);
+  if (!extra) return extraId || '';
+  if (extra.unit) {
+    const pezzi = Math.max(1, Number(quantita) || 1);
+    const totale = extra.price * pezzi + (extra.surcharge || 0);
+    const magg = extra.surcharge ? ` (incluso supplemento ${formatPrice(extra.surcharge)})` : '';
+    return `${extra.label} × ${pezzi} · ${formatPrice(totale)}${magg}`;
   }
-  return extraId || '';
+  return `${extra.label} · ${formatPrice(extra.price)}`;
+}
+
+// Lo stesso conto che il cliente vede nel form: form, email e calendario
+// devono dire la stessa cifra.
+export function calcolaTotale(form = {}) {
+  const pezzi = Math.max(1, Number(form.quantitaCartoncini) || 1);
+  let totale = 0;
+
+  const prezzoSoluzione = getPrice(form.soluzione);
+  if (typeof prezzoSoluzione === 'number') totale += prezzoSoluzione;
+
+  const aggiungi = (id) => {
+    const e = getExtraPrice(id);
+    if (!e || typeof e.price !== 'number') return;
+    totale += e.unit ? e.price * pezzi + (e.surcharge || 0) : e.price;
+  };
+
+  (form.extra || []).forEach(aggiungi);
+  if (form.polaroid) aggiungi(form.polaroid);
+  if (form.cartoncino) aggiungi(form.cartoncino);
+
+  return Math.round(totale * 100) / 100;
 }

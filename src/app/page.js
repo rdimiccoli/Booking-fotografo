@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import styles from './page.module.css'
-import { SOLUTIONS, EXTRAS, getPrice, getExtraPrice } from '@/config/prices'
+import { SOLUTIONS, EXTRAS, calcolaTotale } from '@/config/prices'
 import { validateForm, validatePhoneNumber, validateName } from '@/lib/validation'
 import { generateWhatsAppUrl } from '@/lib/whatsapp'
 import { info } from '@/lib/logger'
@@ -40,7 +40,7 @@ export default function Home() {
     laureaOraSeduta: '',
     laureaAltriDettagli: '',
     dataEvento: '',
-    oraEvento: '10:00',
+    momento: '',
     luogo: '',
     soluzione: '',
     extra: [],
@@ -59,7 +59,7 @@ export default function Home() {
 
   useEffect(() => {
     calcolaPrezzo()
-  }, [form.soluzione, form.extra, form.polaroid, form.cartoncino])
+  }, [form.soluzione, form.extra, form.polaroid, form.cartoncino, form.quantitaCartoncini])
 
   // Arrivo dai preventivi: precompila evento, soluzione ed extra scelti.
   // Es. /?evento=Battesimo&soluzione=bat-2&extra=bat-book,bat-pol-100
@@ -104,47 +104,7 @@ export default function Home() {
   }, [])
 
   const calcolaPrezzo = () => {
-    let totale = 0
-    
-    if (form.soluzione) {
-      const price = getPrice(form.soluzione)
-      if (price && typeof price === 'number') {
-        totale += price
-      }
-    }
-    
-    form.extra.forEach(extraId => {
-      const extraPrice = getExtraPrice(extraId)
-      if (extraPrice) {
-        if (extraPrice.unit && form.quantitaCartoncini) {
-          totale += extraPrice.price * form.quantitaCartoncini
-          if (extraPrice.surcharge) {
-            totale += extraPrice.surcharge
-          }
-        } else if (!extraPrice.unit) {
-          totale += extraPrice.price
-        }
-      }
-    })
-    
-    if (form.polaroid) {
-      const polaroidPrice = getExtraPrice(form.polaroid)
-      if (polaroidPrice && typeof polaroidPrice.price === 'number') {
-        totale += polaroidPrice.price
-      }
-    }
-    
-    if (form.cartoncino) {
-      const cartoncinoPrice = getExtraPrice(form.cartoncino)
-      if (cartoncinoPrice && typeof cartoncinoPrice.price === 'number') {
-        totale += cartoncinoPrice.price * (form.quantitaCartoncini || 1)
-        if (cartoncinoPrice.surcharge) {
-          totale += cartoncinoPrice.surcharge
-        }
-      }
-    }
-    
-    setPrezzoTotale(totale)
+    setPrezzoTotale(calcolaTotale(form))
   }
 
   useEffect(() => {
@@ -488,18 +448,26 @@ export default function Home() {
             </div>
 
             <div className={styles.row2}>
+              {/* Non l'ora esatta: basta sapere se e' di mattina o di sera. */}
               <div className={styles.field}>
-                <label htmlFor="oraEvento" className={styles.label}>
-                  Orario evento
+                <label htmlFor="momento" className={styles.label}>
+                  Quando <span className={styles.req}>*</span>
                 </label>
-                <input
-                  type="time"
-                  id="oraEvento"
-                  name="oraEvento"
-                  value={form.oraEvento}
+                <select
+                  id="momento"
+                  name="momento"
+                  value={form.momento}
                   onChange={handleChange}
-                  className={styles.input}
-                />
+                  className={erroriForm.momento ? styles.inputError : styles.select}
+                  aria-invalid={!!erroriForm.momento}
+                >
+                  <option value="">Mattina o sera?</option>
+                  <option value="Mattina">Mattina</option>
+                  <option value="Sera">Sera</option>
+                </select>
+                {erroriForm.momento
+                  ? <span className={styles.errorText}>{erroriForm.momento}</span>
+                  : <span className={styles.hint}>Non serve l'ora esatta.</span>}
               </div>
 
               <div className={styles.field}>

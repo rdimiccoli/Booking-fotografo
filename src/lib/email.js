@@ -1,7 +1,7 @@
 // Gestione Resend API per email
 
 import { info, warn, logError, debug } from '@/lib/logger';
-import { getSolutionLabel, getExtraLabel } from '@/config/prices';
+import { describeSolution, describeExtra, getSolution, formatPrice, calcolaTotale } from '@/config/prices';
 
 const MAX_EMAIL_RETRIES = 2;
 const EMAIL_RETRY_DELAY_MS = 500;
@@ -109,15 +109,16 @@ export async function sendNotificationEmail(formData, eventDetails = null) {
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Data evento</p>
                 <p style="margin:0;">${formattedDate}</p>
               </div>
-              ${formData.oraEvento ? `
+              ${formData.momento ? `
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
-                <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Orario evento</p>
-                <p style="margin:0;">${formData.oraEvento}</p>
+                <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Quando</p>
+                <p style="margin:0;">${formData.momento}</p>
               </div>` : ''}
               ${formData.soluzione ? `
-              <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
+              <div style="background:#FAF6F2;padding:12px;border-radius:6px;grid-column:1/-1;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Soluzione</p>
-                <p style="margin:0;">${getSolutionLabel(formData.soluzione)}</p>
+                <p style="margin:0;font-weight:600;">${describeSolution(formData.soluzione)}</p>
+                ${getSolution(formData.soluzione)?.desc ? `<p style="margin:4px 0 0;font-size:13px;color:#6B5F52;">${getSolution(formData.soluzione).desc}</p>` : ''}
               </div>` : ''}
               ${formData.chiesa ? `
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
@@ -143,22 +144,28 @@ export async function sendNotificationEmail(formData, eventDetails = null) {
             ${(formData.extra && formData.extra.length > 0) || formData.polaroid || formData.cartoncino ? `
             <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
               ${formData.extra && formData.extra.length > 0 ? `
-              <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
+              <div style="background:#FAF6F2;padding:12px;border-radius:6px;grid-column:1/-1;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Extra</p>
-                <p style="margin:0;">${formData.extra.map(getExtraLabel).join(', ')}</p>
+                ${formData.extra.map(id => `<p style="margin:0;">${describeExtra(id, formData.quantitaCartoncini)}</p>`).join('')}
               </div>` : ''}
               ${formData.polaroid ? `
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Polaroid</p>
-                <p style="margin:0;">${getExtraLabel(formData.polaroid)}</p>
+                <p style="margin:0;">${describeExtra(formData.polaroid)}</p>
               </div>` : ''}
               ${formData.cartoncino ? `
               <div style="background:#FAF6F2;padding:12px;border-radius:6px;">
                 <p style="margin:0 0 4px;font-size:13px;color:#8C7560;">Cartoncino</p>
-                <p style="margin:0;">${getExtraLabel(formData.cartoncino)} ${formData.quantitaCartoncini > 1 ? `(${formData.quantitaCartoncini} pezzi)` : ''}</p>
+                <p style="margin:0;">${describeExtra(formData.cartoncino, formData.quantitaCartoncini)}</p>
               </div>` : ''}
             </div>` : ''}
             
+            ${calcolaTotale(formData) > 0 ? `
+            <div style="background:#F7F3EE;padding:16px;border-radius:6px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:13px;color:#8C7560;">Totale</span>
+              <strong style="font-size:20px;">${formatPrice(calcolaTotale(formData))}</strong>
+            </div>` : ''}
+
             <!-- Notes -->
             ${formData.note ? `
             <div style="background:#F7F3EE;padding:16px;border-radius:6px;margin-bottom:24px;">
