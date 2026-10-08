@@ -10,7 +10,7 @@
 
 import { info, warn, logFullError } from '@/lib/logger';
 import { getSolutionLabel, describeExtra, getPrice, calcolaTotale } from '@/config/prices';
-import { SUPABASE_URL, SUPABASE_KEY, TABELLA_PRENOTAZIONI } from '@/config/supabase';
+import { SUPABASE_URL, SUPABASE_SECRET_KEY, TABELLA_PRENOTAZIONI, chiaveMancante } from '@/config/supabase';
 
 const TIMEOUT_MS = 5000;
 
@@ -72,9 +72,10 @@ export function componiRiga(dati, eventoCalendario = null) {
 }
 
 export async function archiviaPrenotazione(dati, eventoCalendario = null) {
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    warn('Supabase non configurato: la prenotazione non viene archiviata');
-    return { success: false, message: 'Supabase non configurato' };
+  if (chiaveMancante()) {
+    warn('Manca SUPABASE_SECRET_KEY fra le variabili di Vercel: la prenotazione'
+      + ' arriva su calendario e mail ma non viene archiviata.');
+    return { success: false, message: 'SUPABASE_SECRET_KEY non configurata' };
   }
 
   const riga = componiRiga(dati, eventoCalendario);
@@ -89,8 +90,8 @@ export async function archiviaPrenotazione(dati, eventoCalendario = null) {
       signal: annulla,
       headers: {
         'Content-Type': 'application/json',
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_SECRET_KEY,
+        Authorization: `Bearer ${SUPABASE_SECRET_KEY}`,
         Prefer: 'return=minimal',
       },
       body: JSON.stringify(riga),
@@ -106,5 +107,48 @@ export async function archiviaPrenotazione(dati, eventoCalendario = null) {
   } catch (err) {
     logFullError(err, { context: 'archiviaPrenotazione' });
     return { success: false, message: err.message };
+  }
+}
+
+/**
+ * Le prenotazioni in archivio. Solo lato server: la chiave segreta non deve
+ * mai arrivare al browser.
+ *
+ *   quando: 'prossime' (default) | 'passate' | 'tutte'
+ */
+export async function leggiPrenotazioni(quando = 'prossime') {
+  if (chiaveMancante()) {
+    return { errore: 'Manca SUPABASE_SECRET_KEY fra le variabili d\'ambiente.', prenotazioni: [] };
+  }
+
+  const oggi = new Date().toISOString().slice(0, 10);
+  const filtro = quando === 'passate' ? `&data_evento=lt.${oggi}&order=data_evento.desc`
+    : quando === 'tutte' ? '&order=data_evento.desc'
+    : `&data_evento=gte.${oggi}&order=data_evento.asc`;
+
+  try {
+    const risposta = await fetch(
+      `${SUPABASE_URL}/rest/v1/${TABELLA_PRENOTAZIONI}?select=*${filtro}&limit=300`,
+      {
+        cache: 'no-store',
+        headers: {
+          apikey: SUPABASE_SECRET_KEY,
+          Authorization: `Bearer ${SUPABASE_SECRET_KEY}`,
+        },
+      }
+    );
+
+    if (!risposta.ok) {
+      const dettaglio = await risposta.text().catch(() => '');
+      if (dettaglio.includes(TABELLA_PRENOTAZIONI)) {
+        return { errore: 'La tabella non esiste ancora: esegui sql/prenotazioni.sql nel SQL Editor di Supabase.', prenotazioni: [] };
+      }
+      throw new Error(`${risposta.status} ${dettaglio.slice(0, 200)}`);
+    }
+
+    return { errore: null, prenotazioni: await risposta.json() };
+  } catch (err) {
+    logFullError(err, { context: 'leggiPrenotazioni' });
+    return { errore: 'Non riesco a leggere l\'archivio: ' + err.message, prenotazioni: [] };
   }
 }

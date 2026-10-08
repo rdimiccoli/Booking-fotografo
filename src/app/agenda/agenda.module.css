@@ -1,0 +1,203 @@
+/* Agenda: una scheda per prenotazione, pensata per essere letta dal telefono.
+   Stessi colori e caratteri del form (globals.css). */
+
+.main {
+  min-height: 100vh;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 36px 16px 72px;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.testa {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.titolo {
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: .04em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.viste { display: flex; gap: 6px; }
+
+.vista, .vistaAttiva {
+  font-family: var(--sans);
+  font-size: .78rem;
+  letter-spacing: .06em;
+  padding: 7px 14px;
+  border-radius: 20px;
+  text-decoration: none;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  background: transparent;
+}
+
+.vistaAttiva {
+  background: var(--taupe-deep);
+  border-color: var(--taupe-deep);
+  color: var(--paper);
+}
+
+.vista:hover { border-color: var(--taupe); color: var(--ink); }
+
+.scheda {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--taupe);
+  border-radius: 4px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.quando {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.data {
+  font-family: var(--sans);
+  font-size: .74rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--taupe-deep);
+}
+
+.momento {
+  font-family: var(--sans);
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 12px;
+  background: var(--paper-2);
+  color: var(--ink-soft);
+}
+
+.manca {
+  font-family: var(--sans);
+  font-size: .7rem;
+  color: var(--taupe);
+}
+
+.evento {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.festeggiato { font-weight: 400; color: var(--ink-soft); }
+
+.riga {
+  font-family: var(--sans);
+  font-size: .9rem;
+  color: var(--ink-soft);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.etichetta {
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--taupe);
+  margin-right: 8px;
+}
+
+.contatto { color: var(--taupe-deep); text-decoration: none; border-bottom: 1px solid var(--line); }
+.contatto:hover { color: var(--ink); }
+
+.servizio {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.voce, .voceExtra, .totale {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  font-family: var(--sans);
+  font-size: .88rem;
+  color: var(--ink);
+}
+
+.voceExtra { color: var(--ink-soft); font-size: .84rem; padding-left: 2px; }
+
+.totale {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: .95rem;
+  font-weight: 500;
+}
+
+.prezzo { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.note {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 8px 0 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--paper-2);
+}
+
+.provenienza {
+  font-family: var(--sans);
+  font-size: .76rem;
+  color: var(--taupe);
+  margin: 6px 0 0;
+}
+
+.vuoto, .errore {
+  font-family: var(--sans);
+  font-size: .92rem;
+  line-height: 1.6;
+  padding: 22px;
+  border-radius: 4px;
+  margin: 0;
+}
+
+.vuoto { background: #fff; border: 1px dashed var(--line); color: var(--ink-soft); }
+.errore { background: #fff; border: 1px solid var(--error); color: var(--error); }
+
+.piede {
+  font-family: var(--sans);
+  font-size: .8rem;
+  letter-spacing: .06em;
+  color: var(--ink-soft);
+  text-align: center;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 420px) {
+  .titolo { font-size: 1.7rem; }
+  .scheda { padding: 16px; }
+}
